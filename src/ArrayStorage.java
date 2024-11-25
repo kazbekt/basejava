@@ -7,9 +7,7 @@ public class ArrayStorage {
     Resume[] storage = new Resume[10000];
 
     void clear() {
-        for (int i = 0; i < storage.length; i++) {
-            storage[i]=null;
-        }
+        Arrays.fill(storage, null);
     }
 
     void save(Resume r) {
@@ -28,7 +26,7 @@ public class ArrayStorage {
 
     Resume get(String uuid) {
         for (Resume resume : storage) {
-            if (resume != null && resume.toString() == uuid) {
+            if (resume != null && resume.toString().equals(uuid)) {
                 return resume;
             }
         }
@@ -44,7 +42,7 @@ public class ArrayStorage {
                 resumeDeleted = true;
                 System.out.println("Резюме " + uuid + " удалено из хранилища");
             }
-            if(!resumeDeleted && i == storage.length-1)
+            if (!resumeDeleted && i == storage.length - 1)
                 System.out.println("Резюме " + uuid + " в хранилище не содержится");
         }
         storage = sortedStorage(storage);
@@ -55,11 +53,7 @@ public class ArrayStorage {
      */
     Resume[] getAll() {
         storage = sortedStorage(storage);
-        Resume[] all = new Resume[size()];
-        for (int i = 0; i < all.length; i++) {
-            all[i] = storage[i];
-        }
-        return all;
+        return Arrays.copyOf(storage, size());
     }
 
     int size() {
@@ -75,13 +69,11 @@ public class ArrayStorage {
     Resume[] sortedStorage(Resume[] storage) {
         Resume[] sortedStorage = new Resume[10000];
         int resumeNumber = 0;
-        for (int i = 0; i < storage.length; i++) {
-            if (storage[i] != null) {
-                sortedStorage[resumeNumber] = storage[i];
-                resumeNumber += 1;
+        for (Resume resume : storage) {
+            if (resume != null) {
+                sortedStorage[resumeNumber++] = resume;
             }
         }
-
         return sortedStorage;
     }
 }
