@@ -6,28 +6,30 @@ import java.util.Arrays;
 public class ArrayStorage {
     Resume[] storage = new Resume[10000];
 
+    int storageSize = 0;
+
     void clear() {
-        Arrays.fill(storage, null);
+        Arrays.fill(storage, 0, storageSize, null);
+        storageSize = 0;
     }
 
     void save(Resume r) {
-        storage = sortedStorage(storage);
-        for (int i = 0; i < storage.length; i++) {
-            if (storage[i] != null && storage[i].uuid.equals(r.uuid)) {
-                System.out.println("Резюме ранее добавлено в хранилище");
-                break;
-            }
-            if (storage[i] == null) {
-                storage[i] = r;
-                break;
+        if (storageSize != 0) {
+            for (int i = 0; i < storageSize; i++) {
+                if (storage[i].uuid.equals(r.uuid)) {
+                    System.out.println("Резюме ранее добавлено в хранилище");
+                    return;
+                }
             }
         }
+        storage[storageSize++] = r;
     }
 
     Resume get(String uuid) {
-        for (Resume resume : storage) {
-            if (resume != null && resume.toString().equals(uuid)) {
-                return resume;
+
+        for (int i = 0; i < storageSize; i++) {
+            if (storage[i].uuid.equals(uuid)) {
+                return storage[i];
             }
         }
         System.out.println("Резюме " + uuid + " в хранилище не содержится");
@@ -35,45 +37,27 @@ public class ArrayStorage {
     }
 
     void delete(String uuid) {
-        boolean resumeDeleted = false;
-        for (int i = 0; i < storage.length; i++) {
-            if (storage[i] != null && storage[i].uuid.equals(uuid)) {
-                storage[i] = null;
-                resumeDeleted = true;
+        for (int i = 0; i < storageSize; i++) {
+            if (storage[i].uuid.equals(uuid)) {
+                for (int j = i; j < storageSize; j++) {
+                    storage[j] = storage[j + 1];
+                }
                 System.out.println("Резюме " + uuid + " удалено из хранилища");
+                storageSize--;
+                return;
             }
-            if (!resumeDeleted && i == storage.length - 1)
-                System.out.println("Резюме " + uuid + " в хранилище не содержится");
         }
-        storage = sortedStorage(storage);
+        System.out.println("Резюме " + uuid + " в хранилище не содержится");
     }
 
     /**
      * @return array, contains only Resumes in storage (without null)
      */
     Resume[] getAll() {
-        storage = sortedStorage(storage);
-        return Arrays.copyOf(storage, size());
+        return Arrays.copyOfRange(storage, 0, storageSize);
     }
 
     int size() {
-        int resumeSize = 0;
-        storage = sortedStorage(storage);
-        for (Resume resume : storage) {
-            if (resume != null)
-                resumeSize++;
-        }
-        return resumeSize;
-    }
-
-    Resume[] sortedStorage(Resume[] storage) {
-        Resume[] sortedStorage = new Resume[10000];
-        int resumeNumber = 0;
-        for (Resume resume : storage) {
-            if (resume != null) {
-                sortedStorage[resumeNumber++] = resume;
-            }
-        }
-        return sortedStorage;
+        return storageSize;
     }
 }
