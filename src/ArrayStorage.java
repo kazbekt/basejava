@@ -14,6 +14,10 @@ public class ArrayStorage {
     }
 
     void save(Resume r) {
+        if (storageSize == storage.length) {
+            System.out.println("Хранилище заполнено. Добавление резюме невозможно");
+            return;
+        }
         if (storageSize != 0) {
             for (int i = 0; i < storageSize; i++) {
                 if (storage[i].uuid.equals(r.uuid)) {
@@ -26,7 +30,6 @@ public class ArrayStorage {
     }
 
     Resume get(String uuid) {
-
         for (int i = 0; i < storageSize; i++) {
             if (storage[i].uuid.equals(uuid)) {
                 return storage[i];
@@ -39,9 +42,8 @@ public class ArrayStorage {
     void delete(String uuid) {
         for (int i = 0; i < storageSize; i++) {
             if (storage[i].uuid.equals(uuid)) {
-                for (int j = i; j < storageSize; j++) {
-                    storage[j] = storage[j + 1];
-                }
+                storage[i] = storage[storageSize - 1];
+                storage[storageSize - 1] = null;
                 System.out.println("Резюме " + uuid + " удалено из хранилища");
                 storageSize--;
                 return;
