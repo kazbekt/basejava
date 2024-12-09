@@ -8,90 +8,78 @@ import java.util.Arrays;
  * Array based storage for Resumes
  */
 public class ArrayStorage {
-    private Resume[] storage = new Resume[10000];
-
-    private int storageSize = 0;
+    private final int STORAGE_LIMIT = 10000;
+    private final Resume[] storage = new Resume[STORAGE_LIMIT];
+    private int size = 0;
 
     public void clear() {
-        Arrays.fill(storage, 0, storageSize, null);
-        storageSize = 0;
+        Arrays.fill(storage, 0, size, null);
+        size = 0;
     }
 
     public void save(Resume r) {
-        if (storageSize == storage.length) {
+        int index = getIndex(r.getUuid());
+        if (size == STORAGE_LIMIT) {
             System.out.println("Хранилище заполнено. Добавление резюме невозможно");
-            return;
-        }
-        if (checkResumePresence(r)) {
+        } else if (index > 0 && isExisting(index)) {
             System.out.println("Резюме " + r.getUuid() + "ранее добавлено в хранилище");
-            return;
-        }
-        storage[storageSize++] = r;
+        } else storage[size++] = r;
     }
 
-    public void update(Resume r, String uuidUpdate) {
-        if (!checkResumePresence(r)) {
+    public void update(Resume r) {
+        int index = getIndex(r.getUuid());
+        if (index == -1) {
             System.out.println("Резюме " + r.getUuid() + " в хранилище не содержится");
-            return;
-        }
-        if (checkUuidPresence(uuidUpdate) == null) {
-            r.setUuid(uuidUpdate);
         } else {
-            System.out.println("Обновление резюме " + r.getUuid() + " неуникальным идентификатором невозможно");
+            storage[index] = r;
+            System.out.println("Резюме " + r.getUuid() + " заменено на " + r.getUuid());
         }
     }
 
     public Resume get(String uuid) {
-        Resume r = checkUuidPresence(uuid);
-        if (r == null)
+        int index = getIndex(uuid);
+        if (index < 0) {
             System.out.println("Резюме " + uuid + " в хранилище не содержится");
-        return r;
+            return null;
+        }
+        return storage[index];
     }
 
     public void delete(String uuid) {
-        for (int i = 0; i < storageSize; i++) {
-            if (storage[i].getUuid().equals(uuid)) {
-                storage[i] = storage[storageSize - 1];
-                storage[storageSize - 1] = null;
-                System.out.println("Резюме " + uuid + " удалено из хранилища");
-                storageSize--;
-                return;
-            }
+        int index = getIndex(uuid);
+        if (index != -1) {
+            storage[index] = storage[size - 1];
+            storage[size - 1] = null;
+            System.out.println("Резюме " + uuid + " удалено из хранилища");
+            size--;
+        } else {
+            System.out.println("Резюме " + uuid + " в хранилище не содержится");
         }
-        System.out.println("Резюме " + uuid + " в хранилище не содержится");
     }
 
     /**
      * @return array, contains only Resumes in storage (without null)
      */
     public Resume[] getAll() {
-        return Arrays.copyOfRange(storage, 0, storageSize);
+        return Arrays.copyOfRange(storage, 0, size);
     }
 
     public int size() {
-        return storageSize;
+        return size;
     }
 
-    private boolean checkResumePresence(Resume r) {
-        if (storageSize != 0) {
-            for (int i = 0; i < storageSize; i++) {
-                if (storage[i].getUuid().equals(r.getUuid())) {
-                    return true;
-                }
-            }
-        }
-        return false;
+    private boolean isExisting(int index) {
+        return storage[index] != null;
     }
 
-    private Resume checkUuidPresence(String uuid) {
-        if (storageSize != 0) {
-            for (int i = 0; i < storageSize; i++) {
+    private int getIndex(String uuid) {
+        if (size != 0) {
+            for (int i = 0; i < size; i++) {
                 if (storage[i].getUuid().equals(uuid)) {
-                    return storage[i];
+                    return i;
                 }
             }
         }
-
-        return null;
+        return -1;
     }
 }
