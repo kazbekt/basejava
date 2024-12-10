@@ -21,14 +21,16 @@ public class ArrayStorage {
         int index = getIndex(r.getUuid());
         if (size == STORAGE_LIMIT) {
             System.out.println("Хранилище заполнено. Добавление резюме невозможно");
-        } else if (index > 0 && isExisting(index)) {
+        } else if (isExisting(index)) {
             System.out.println("Резюме " + r.getUuid() + "ранее добавлено в хранилище");
-        } else storage[size++] = r;
+        } else {
+            storage[size++] = r;
+        }
     }
 
     public void update(Resume r) {
         int index = getIndex(r.getUuid());
-        if (index == -1) {
+        if (!isExisting(index)) {
             System.out.println("Резюме " + r.getUuid() + " в хранилище не содержится");
         } else {
             storage[index] = r;
@@ -38,7 +40,7 @@ public class ArrayStorage {
 
     public Resume get(String uuid) {
         int index = getIndex(uuid);
-        if (index < 0) {
+        if (!isExisting(index)) {
             System.out.println("Резюме " + uuid + " в хранилище не содержится");
             return null;
         }
@@ -47,7 +49,7 @@ public class ArrayStorage {
 
     public void delete(String uuid) {
         int index = getIndex(uuid);
-        if (index != -1) {
+        if (isExisting(index)) {
             storage[index] = storage[size - 1];
             storage[size - 1] = null;
             System.out.println("Резюме " + uuid + " удалено из хранилища");
@@ -69,17 +71,15 @@ public class ArrayStorage {
     }
 
     private boolean isExisting(int index) {
-        return storage[index] != null;
+        return index >= 0 && index < size;
     }
 
     private int getIndex(String uuid) {
-        if (size != 0) {
             for (int i = 0; i < size; i++) {
-                if (storage[i].getUuid().equals(uuid)) {
+                if (storage[i].getUuid() != null && storage[i].getUuid().equals(uuid)) {
                     return i;
                 }
             }
-        }
         return -1;
     }
 }
