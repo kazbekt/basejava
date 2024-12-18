@@ -7,25 +7,14 @@ import java.util.Arrays;
 /**
  * Array based storage for Resumes
  */
-public class ArrayStorage {
-    private final int STORAGE_LIMIT = 10000;
-    private final Resume[] storage = new Resume[STORAGE_LIMIT];
+public class ArrayStorage extends AbstractArrayStorage implements Storage{
+    private static final int STORAGE_LIMIT = 10000;
+    private Resume[] storage = new Resume[STORAGE_LIMIT];
     private int size = 0;
 
     public void clear() {
         Arrays.fill(storage, 0, size, null);
         size = 0;
-    }
-
-    public void save(Resume r) {
-        int index = getIndex(r.getUuid());
-        if (size == STORAGE_LIMIT) {
-            System.out.println("Хранилище заполнено. Добавление резюме невозможно");
-        } else if (isExisting(index)) {
-            System.out.println("Резюме " + r.getUuid() + "ранее добавлено в хранилище");
-        } else {
-            storage[size++] = r;
-        }
     }
 
     public void update(Resume r) {
@@ -38,13 +27,16 @@ public class ArrayStorage {
         }
     }
 
-    public Resume get(String uuid) {
-        int index = getIndex(uuid);
-        if (!isExisting(index)) {
-            System.out.println("Резюме " + uuid + " в хранилище не содержится");
-            return null;
+    public void save(Resume r) {
+        int index = getIndex(r.getUuid());
+        if (size >= STORAGE_LIMIT) {
+            System.out.println("Хранилище заполнено. Добавление резюме невозможно");
+        } else if (isExisting(index)) {
+            System.out.println("Резюме " + r.getUuid() + "ранее добавлено в хранилище");
+        } else {
+            storage[size] = r;
+            size++;
         }
-        return storage[index];
     }
 
     public void delete(String uuid) {
@@ -66,20 +58,16 @@ public class ArrayStorage {
         return Arrays.copyOfRange(storage, 0, size);
     }
 
-    public int size() {
-        return size;
+    protected boolean isExisting(int index) {
+        return index >= 0;
     }
 
-    private boolean isExisting(int index) {
-        return index >= 0 && index < size;
-    }
-
-    private int getIndex(String uuid) {
-            for (int i = 0; i < size; i++) {
-                if (storage[i].getUuid() != null && storage[i].getUuid().equals(uuid)) {
-                    return i;
-                }
+    protected int getIndex(String uuid) {
+        for (int i = 0; i < size; i++) {
+            if (uuid.equals(storage[i].getUuid())) {
+                return i;
             }
+        }
         return -1;
     }
 }
