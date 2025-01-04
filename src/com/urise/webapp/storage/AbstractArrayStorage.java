@@ -11,7 +11,7 @@ import java.util.Arrays;
  * Array based storage for Resumes
  */
 public abstract class AbstractArrayStorage implements Storage {
-    protected static final int STORAGE_LIMIT = 3;
+    public static final int STORAGE_LIMIT = 100;
     protected Resume[] storage = new Resume[STORAGE_LIMIT];
     protected int size = 0;
 
@@ -30,7 +30,6 @@ public abstract class AbstractArrayStorage implements Storage {
             throw new NotExistStorageException(r.getUuid());
         } else {
             storage[index] = r;
-            System.out.println("Резюме " + r.getUuid() + " заменено на " + r.getUuid());
         }
     }
 
@@ -56,7 +55,6 @@ public abstract class AbstractArrayStorage implements Storage {
         if (isExisting(index)) {
             fillDeletedElement(index);
             storage[size - 1] = null;
-            System.out.println("Резюме " + uuid + " удалено из хранилища");
             size--;
         } else {
             throw new NotExistStorageException(uuid);
