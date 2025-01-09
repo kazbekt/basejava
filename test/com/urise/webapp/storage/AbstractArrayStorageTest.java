@@ -10,68 +10,79 @@ import com.urise.webapp.exception.StorageException;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 
 public abstract class AbstractArrayStorageTest {
-    protected Storage storage;
+    private static final Resume r0 = new Resume("uuid0");
+    private static final Resume r1 = new Resume("uuid1");
+    private static final Resume r2 = new Resume("uuid2");
+    private static final Resume r3 = new Resume("uuid3");
 
-    abstract public void createStorage();
+    protected final Storage storage;
 
-    private static final String UUID_1 = "uuid1";
-    private static final String UUID_2 = "uuid2";
-    private static final String UUID_3 = "uuid3";
+    protected AbstractArrayStorageTest(Storage storage) {
+        this.storage = storage;
+    }
 
     @Before
     public void setUp() throws Exception {
-        createStorage();
         storage.clear();
-        storage.save(new Resume(UUID_1));
-        storage.save(new Resume(UUID_2));
-        storage.save(new Resume(UUID_3));
+        storage.save(r1);
+        storage.save(r2);
+        storage.save(r3);
     }
 
     @Test
     public void size() throws Exception {
-        Assert.assertEquals(3, storage.size());
+        assertSize(3);
+    }
+
+    protected void assertSize(int size) {
+        assertEquals(size, storage.size());
     }
 
     @Test
     public void clear() throws Exception {
         storage.clear();
-        assertEquals(0, storage.size());
+        assertSize(0);
+        assertArrayEquals(new Storage[0], storage.getAll());
     }
 
     @Test
     public void update() throws Exception {
-        //метод update еще не функционален
+        assertSame(r1, new Resume("uuid1"));
     }
 
     @Test
     public void getAll() throws Exception {
-        assertEquals(new Resume[]{new Resume("uuid1"),
-                new Resume("uuid2"),
-                new Resume("uuid3")}, storage.getAll());
+        Resume[] expected = new Resume[]{r1, r2, r3};
+        assertArrayEquals(expected, storage.getAll());
     }
 
     @Test
     public void save() throws Exception {
-        Resume test = new Resume("uuid0");
-        storage.save(test);
-        assertEquals(test, storage.get("uuid0"));
+        storage.save(r0);
+        assertGet(new Resume("uuid0"));
+        assertSize(4);
     }
 
     @Test(expected = NotExistStorageException.class)
     public void delete() throws Exception {
         storage.delete("uuid2");
-        storage.get("uuid2");
+        assertSize(2);
+        assertGet(r2);
     }
 
     @Test
     public void get() throws Exception {
-        Resume test = new Resume("uuid3");
-        assertEquals(test, storage.get("uuid3"));
+        assertGet(new Resume("uuid1"));
+        assertGet(new Resume("uuid2"));
+        assertGet(new Resume("uuid3"));
+    }
 
+    private void assertGet(Resume resume) {
+        assertEquals(resume, resume.getUuid());
     }
 
     @Test(expected = NotExistStorageException.class)
@@ -79,8 +90,8 @@ public abstract class AbstractArrayStorageTest {
         storage.get("dummy");
     }
 
-    @Test
-    public void StorageException() {
+    @Test(expected = StorageException.class)
+    public void saveOverflow() {
         storage.clear();
         try {
             for (int i = 0; i < AbstractArrayStorage.STORAGE_LIMIT; i++) {
@@ -90,11 +101,6 @@ public abstract class AbstractArrayStorageTest {
         } catch (Exception e) {
             Assert.fail("Переполнение произошло рано: " + e.getMessage());
         }
-        try {
-            storage.save(new Resume(String.valueOf(AbstractArrayStorage.STORAGE_LIMIT + 1)));
-        } catch (StorageException e) {
-        } catch (Exception e) {
-            Assert.fail("При переполнении выбрасывается неправильное исключение " + e.getMessage());
-        }
+        storage.save(new Resume(String.valueOf(AbstractArrayStorage.STORAGE_LIMIT + 1)));
     }
 }
