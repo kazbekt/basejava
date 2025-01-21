@@ -1,7 +1,5 @@
 package com.urise.webapp.storage;
 
-import com.urise.webapp.exception.ExistStorageException;
-import com.urise.webapp.exception.NotExistStorageException;
 import com.urise.webapp.exception.StorageException;
 import com.urise.webapp.model.Resume;
 
@@ -24,53 +22,8 @@ public abstract class AbstractArrayStorage extends AbstractStorage {
         size = 0;
     }
 
-    public final void update(Resume r) {
-        int index = getIndex(r.getUuid());
-        if (!isExisting(index)) {
-            throw new NotExistStorageException(r.getUuid());
-        } else {
-            storage[index] = r;
-        }
-    }
-
     public Resume[] getAll() {
         return Arrays.copyOfRange(storage, 0, size);
-    }
-
-    public final void save(Resume r) {
-        if (size >= STORAGE_LIMIT) {
-            throw new StorageException("Хранилище переполнено", r.getUuid());
-        }
-        int index = getIndex(r.getUuid());
-        if (isExisting(index)) {
-            throw new ExistStorageException(r.getUuid());
-        } else {
-            insertElement(r, index);
-            size++;
-        }
-    }
-
-    public final void delete(String uuid) {
-        int index = getIndex(uuid);
-        if (isExisting(index)) {
-            fillDeletedElement(index);
-            storage[size - 1] = null;
-            size--;
-        } else {
-            throw new NotExistStorageException(uuid);
-        }
-    }
-
-    public final Resume get(String uuid) {
-        int index = getIndex(uuid);
-        if (!isExisting(index)) {
-            throw new NotExistStorageException(uuid);
-        }
-        return storage[index];
-    }
-
-    protected boolean isExisting(int index) {
-        return index >= 0;
     }
 
     protected abstract void fillDeletedElement(int index);
@@ -79,4 +32,29 @@ public abstract class AbstractArrayStorage extends AbstractStorage {
 
     protected abstract int getIndex(String uuid);
 
+    @Override
+    protected Resume doGet(int index) {
+        return storage[index];
+    }
+
+    @Override
+    protected void doSave(Resume r, int index) {
+        if (size >= STORAGE_LIMIT) {
+            throw new StorageException("Хранилище переполнено", r.getUuid());
+        }
+        insertElement(r, index);
+        size++;
+    }
+
+    @Override
+    protected void doUpdate(int index, Resume r) {
+        storage[index] = r;
+    }
+
+    @Override
+    protected void doDelete(int index) {
+        fillDeletedElement(index);
+        storage[size - 1] = null;
+        size--;
+    }
 }
