@@ -24,16 +24,12 @@ public class ListStorage extends AbstractStorage {
 
     @Override
     protected int getIndex(String uuid) {
-        Resume r = new Resume(uuid);
-        if (storage.contains(r)) {
-            return storage.indexOf(r);
+        for (int i = 0; i < storage.size(); i++) {
+            String search = storage.get(i).getUuid();
+            if (uuid.equals(search))
+                return i;
         }
         return -1;
-    }
-
-    @Override
-    protected boolean isExisting(int index) {
-        return false;
     }
 
     @Override

@@ -16,17 +16,10 @@ public class MainTestArrayStorage {
         Resume r3 = new Resume("uuid3");
         Resume r4 = new Resume("uuid4");
 
-        printAll();
-        System.out.println();
+
         ARRAY_STORAGE.save(r3);
-        printAll();
-        System.out.println();
         ARRAY_STORAGE.save(r2);
-        printAll();
-        System.out.println();
         ARRAY_STORAGE.save(r1);
-        printAll();
-        System.out.println();
         ARRAY_STORAGE.save(r4);
 
 
