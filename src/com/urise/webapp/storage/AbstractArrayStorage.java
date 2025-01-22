@@ -30,8 +30,6 @@ public abstract class AbstractArrayStorage extends AbstractStorage {
 
     protected abstract void insertElement(Resume r, int index);
 
-    protected abstract int getIndex(String uuid);
-
     @Override
     protected Resume doGet(int index) {
         return storage[index];

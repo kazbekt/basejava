@@ -5,51 +5,27 @@ import com.urise.webapp.exception.NotExistStorageException;
 import com.urise.webapp.model.Resume;
 
 public abstract class AbstractStorage implements Storage {
-    @Override
-    public void clear() {
-        /* Игорь, вот такие методы пустышки, нужно оставлять или удалять?
-         * Как я понимаю, для удобства это нужно, а практического смысла нет.
-         * Из таких в этом классе еще getAll и size. А в AbstractArrayStorage
-         * соответственно вспомогательные, которые объявлены теперь тут - getIndex */
-    }
 
     @Override
     public final void update(Resume r) {
-        int index = getIndex(r.getUuid());
-        if (!isExisting(index)) {
-            throw new NotExistStorageException(r.getUuid());
-        } else {
-            doUpdate(index, r);
-        }
+        Object searchKey = r.getUuid();
+        doUpdate(getNotExistingSearchKey(searchKey), r);
     }
 
     @Override
     public final void save(Resume r) {
-        int index = getIndex(r.getUuid());
-        if (isExisting(index)) {
-            throw new ExistStorageException(r.getUuid());
-        } else {
-            doSave(r, index);
-        }
+        Object searchKey = r.getUuid();
+        doSave(r, getNotExistingSearchKey(searchKey));
     }
 
     @Override
     public final Resume get(String uuid) {
-        int index = getIndex(uuid);
-        if (!isExisting(index)) {
-            throw new NotExistStorageException(uuid);
-        }
-        return doGet(index);
+        return doGet(getExistingSearchKey(uuid));
     }
 
     @Override
     public final void delete(String uuid) {
-        int index = getIndex(uuid);
-        if (!isExisting(index)) {
-            throw new NotExistStorageException(uuid);
-        } else {
-            doDelete(index);
-        }
+        doDelete(getExistingSearchKey(uuid));
     }
 
     @Override
@@ -57,16 +33,23 @@ public abstract class AbstractStorage implements Storage {
         return new Resume[0];
     }
 
-    @Override
-    public int size() {
-        return 0;
+    protected abstract int isExist(Object searchKey);
+
+    private int getExistingSearchKey(Object searchKey) {
+        int index = isExist(searchKey);
+        if (index < 0) {
+            throw new NotExistStorageException(searchKey.toString());
+        }
+        return index;
     }
 
-    protected boolean isExisting(int index) {
-        return index >= 0;
+    private int getNotExistingSearchKey(Object searchKey) {
+        int index = isExist(searchKey);
+        if (index >= 0) {
+            throw new ExistStorageException(searchKey.toString());
+        }
+        return index;
     }
-
-    protected abstract int getIndex(String uuid);
 
     protected abstract void doSave(Resume r, int index);
 
@@ -75,7 +58,6 @@ public abstract class AbstractStorage implements Storage {
     protected abstract void doUpdate(int index, Resume r);
 
     protected abstract void doDelete(int index);
-
 
 }
 
