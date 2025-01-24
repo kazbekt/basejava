@@ -24,7 +24,7 @@ public class ListStorage extends AbstractStorage {
     }
 
     @Override
-    protected int isExist(Object searchKey) {
+    protected Integer getSearchKey(Object searchKey) {
         for (int i = 0; i < storage.size(); i++) {
             String search = storage.get(i).getUuid();
             if (searchKey.equals(search))
@@ -34,22 +34,28 @@ public class ListStorage extends AbstractStorage {
     }
 
     @Override
-    protected Resume doGet(int index) {
-        return storage.get(index);
+    protected boolean isExist(Integer searchKey) {
+        return searchKey >= 0;
     }
 
     @Override
-    protected void doSave(Resume r, int index) {
+    protected Resume doGet(Object searchKey) {
+        return storage.get((Integer) searchKey);
+    }
+
+    @Override
+    protected void doSave(Resume r, Object searchKey) {
         storage.add(r);
     }
 
     @Override
-    protected void doUpdate(int index, Resume r) {
-        storage.add(index, r);
+    protected void doUpdate(Resume r, Object searchKey) {
+        storage.add((Integer) searchKey, r);
     }
 
     @Override
-    protected void doDelete(int index) {
+    protected void doDelete(Object searchKey) {
+        int index = (Integer) searchKey;
         storage.remove(index);
     }
 }
