@@ -4,9 +4,10 @@ import com.urise.webapp.model.Resume;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 
-public class HashMapStorage extends AbstractStorage {
+public class MapStorage extends AbstractStorage {
 
     protected static final Map<String, Resume> storage = new HashMap<>();
 
@@ -17,17 +18,12 @@ public class HashMapStorage extends AbstractStorage {
 
     @Override
     protected boolean isExist(Object searchKey) {
-        return searchKey != null;
+        return searchKey instanceof String uuid && storage.containsKey(uuid);
     }
 
     @Override
-    protected Object getSearchKey(Object searchKey) {
-        for (String key : storage.keySet()) {
-            if (key.equals(searchKey)) {
-                return key;
-            }
-        }
-        return null;
+    protected Object getSearchKey(String uuid) {
+        return uuid;
     }
 
     @Override
@@ -37,17 +33,17 @@ public class HashMapStorage extends AbstractStorage {
 
     @Override
     protected Resume doGet(Object searchKey) {
-        return storage.get(searchKey.toString());
+        return storage.get((String) searchKey);
     }
 
     @Override
     protected void doUpdate(Resume r, Object searchKey) {
-        storage.replace(searchKey.toString(), r);
+        storage.put((String) searchKey, r);
     }
 
     @Override
     protected void doDelete(Object searchKey) {
-        storage.remove(searchKey.toString());
+        storage.remove((String) searchKey);
     }
 
     @Override

@@ -22,13 +22,10 @@ public abstract class AbstractArrayStorage extends AbstractStorage {
         size = 0;
     }
 
+    @Override
     public Resume[] getAll() {
         return Arrays.copyOfRange(storage, 0, size);
     }
-
-    protected abstract void fillDeletedElement(int index);
-
-    protected abstract void insertElement(Resume r, int index);
 
     @Override
     protected Resume doGet(Object searchKey) {
@@ -60,4 +57,8 @@ public abstract class AbstractArrayStorage extends AbstractStorage {
     protected boolean isExist(Object searchKey) {
         return (Integer) searchKey >= 0;
     }
+
+    protected abstract void fillDeletedElement(int index);
+
+    protected abstract void insertElement(Resume r, int index);
 }
