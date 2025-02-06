@@ -4,7 +4,6 @@ import com.urise.webapp.model.Resume;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 
 public class MapStorage extends AbstractStorage {
