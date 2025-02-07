@@ -10,7 +10,7 @@ public class Resume implements Comparable<Resume> {
     // Unique identifier
     private final String uuid;
 
-    private String fullName;
+    private String fullName = "NoName";
 
     public String getFullName() {
         return fullName;
@@ -23,6 +23,8 @@ public class Resume implements Comparable<Resume> {
     public Resume(){
         this(UUID.randomUUID().toString());
     }
+
+
 
     public Resume(String uuid) {
         this.uuid = uuid;
@@ -38,9 +40,6 @@ public class Resume implements Comparable<Resume> {
         if (o == null || getClass() != o.getClass()) return false;
         Resume resume = (Resume) o;
         return uuid.equals(resume.uuid);
-        //не уверен, надо ли здесь дописать еще и проверку имени?
-        //логически uuid в отличии от fullName уникальный и
-        //по идее нет смысла еще и по имени сравнивать
     }
 
     @Override
@@ -50,12 +49,13 @@ public class Resume implements Comparable<Resume> {
 
     @Override
     public String toString() {
-        return uuid;
+        return uuid + " : " + fullName;
     }
 
     @Override
     public int compareTo(Resume o) {
-        int compare = this.getFullName().compareTo(o.getUuid());
+        int compare = this.getFullName().compareTo(o.getFullName());
         return (compare !=0) ? compare:uuid.compareTo(o.getUuid());
     }
+
 }

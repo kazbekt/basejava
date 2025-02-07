@@ -5,7 +5,9 @@ import com.urise.webapp.model.Resume;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -40,12 +42,12 @@ public abstract class AbstractStorageTest {
     @Before
     public void setUp() {
         storage.clear();
-        storage.save(r1);
         r1.setFullName(UUID_1_name);
-        storage.save(r2);
         r2.setFullName(UUID_2_name);
-        storage.save(r3);
         r3.setFullName(UUID_3_name);
+        storage.save(r1);
+        storage.save(r2);
+        storage.save(r3);
     }
 
     @Test
@@ -71,10 +73,10 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void getAllSorted() {
-        Resume[] expected = new Resume[]{r1, r2, r3};
+        List<Resume> expected = new ArrayList<>(Arrays.asList(r1, r2, r3));
+        expected.sort(null);
         Resume[] actual = storage.getAllSorted().toArray(new Resume[storage.size()]);
-        Arrays.sort(actual);
-        assertArrayEquals(expected, actual);
+        assertArrayEquals(expected.toArray(), actual);
     }
 
     @Test
@@ -93,9 +95,16 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void get() {
-        assertGet(new Resume(UUID_1));
-        assertGet(new Resume(UUID_2));
-        assertGet(new Resume(UUID_3));
+        Resume T1 = new Resume(UUID_1);
+        Resume T2 = new Resume(UUID_2);
+        Resume T3 = new Resume(UUID_3);
+        T1.setFullName(UUID_1_name);
+        T2.setFullName(UUID_2_name);
+        T3.setFullName(UUID_3_name);
+
+        assertGet(T1);
+        assertGet(T2);
+        assertGet(T3);
     }
 
     private void assertGet(Resume resume) {
