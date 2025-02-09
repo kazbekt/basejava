@@ -4,7 +4,7 @@ import com.urise.webapp.model.Resume;
 
 import java.util.*;
 
-public class MapStorageFullName extends AbstractStorage {
+public class MapResumeStorage extends AbstractStorage {
 
     protected static final Map<String, Resume> storage = new HashMap<>();
 
