@@ -27,10 +27,10 @@ public abstract class AbstractStorageTest {
 
 
 
-    private static final Resume r0 = new Resume(UUID_0);
-    private static final Resume r1 = new Resume(UUID_1);
-    private static final Resume r2 = new Resume(UUID_2);
-    private static final Resume r3 = new Resume(UUID_3);
+    private static final Resume r0 = new Resume(UUID_0, UUID_0_name);
+    private static final Resume r1 = new Resume(UUID_1, UUID_1_name);
+    private static final Resume r2 = new Resume(UUID_2, UUID_2_name);
+    private static final Resume r3 = new Resume(UUID_3, UUID_3_name);
 
 
     protected final Storage storage;
@@ -42,9 +42,9 @@ public abstract class AbstractStorageTest {
     @Before
     public void setUp() {
         storage.clear();
-        r1.setFullName(UUID_1_name);
-        r2.setFullName(UUID_2_name);
-        r3.setFullName(UUID_3_name);
+//        r1.setFullName(UUID_1_name);
+//        r2.setFullName(UUID_2_name);
+//        r3.setFullName(UUID_3_name);
         storage.save(r1);
         storage.save(r2);
         storage.save(r3);
@@ -82,7 +82,7 @@ public abstract class AbstractStorageTest {
     @Test
     public void save() {
         storage.save(r0);
-        assertGet(new Resume(UUID_0));
+        assertGet(new Resume(UUID_0, UUID_0_name));
         assertSize(4);
     }
 
@@ -95,12 +95,10 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void get() {
-        Resume T1 = new Resume(UUID_1);
-        Resume T2 = new Resume(UUID_2);
-        Resume T3 = new Resume(UUID_3);
-        T1.setFullName(UUID_1_name);
-        T2.setFullName(UUID_2_name);
-        T3.setFullName(UUID_3_name);
+        Resume T1 = new Resume(UUID_1, UUID_1_name);
+        Resume T2 = new Resume(UUID_2, UUID_2_name);
+        Resume T3 = new Resume(UUID_3, UUID_3_name);
+
 
         assertGet(T1);
         assertGet(T2);

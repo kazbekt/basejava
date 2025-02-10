@@ -10,6 +10,10 @@ public class MainTestArrayStorage {
     static final Storage ARRAY_STORAGE = new SortedArrayStorage();
 
     public static void main(String[] args) {
+        Resume ss = new Resume();
+
+        System.out.println(ss.getUuid());
+        System.out.println(ss.getFullName());
 
         Resume r1 = new Resume("uuid1");
         Resume r2 = new Resume("uuid2");
