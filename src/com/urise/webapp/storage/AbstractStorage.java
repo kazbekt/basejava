@@ -53,12 +53,12 @@ public abstract class AbstractStorage implements Storage {
 
     @Override
     public List<Resume> getAllSorted() {
-        List<Resume> sortedList = getAll();
+        List<Resume> sortedList = doCopyAll();
         sortedList.sort(RESUME_COMPARATOR);
         return sortedList;
     }
 
-    protected abstract List<Resume> getAll();
+    protected abstract List<Resume> doCopyAll();
 
     protected abstract boolean isExist(Object searchKey);
 

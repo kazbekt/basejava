@@ -15,15 +15,10 @@ public class MainTestArrayStorage {
         System.out.println(ss.getUuid());
         System.out.println(ss.getFullName());
 
-        Resume r1 = new Resume("uuid1");
-        Resume r2 = new Resume("uuid2");
-        Resume r3 = new Resume("uuid3");
-        Resume r4 = new Resume("uuid4");
-        r1.setFullName("uuid1_name");
-        r2.setFullName("uuid2_name");
-        r3.setFullName("uuid3_name");
-        r4.setFullName("uuid4_name");
-
+        Resume r1 = new Resume("uuid1","uuid1_name");
+        Resume r2 = new Resume("uuid2","uuid2_name");
+        Resume r3 = new Resume("uuid3", "uuid3_name");
+        Resume r4 = new Resume("uuid4", "uuid4_name");
 
         ARRAY_STORAGE.save(r3);
         ARRAY_STORAGE.save(r2);

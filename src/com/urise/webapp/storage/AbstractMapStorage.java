@@ -22,7 +22,7 @@ public abstract class AbstractMapStorage extends AbstractStorage {
     }
 
     @Override
-    public List<Resume> getAll() {
+    public List<Resume> doCopyAll() {
         ArrayList<Resume> list = new ArrayList<>(storage.values());
         list.sort(null);
         return list;
