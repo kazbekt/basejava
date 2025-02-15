@@ -13,24 +13,25 @@ import static org.junit.Assert.*;
 
 public abstract class AbstractStorageTest {
     private static final String UUID_0 = "uuid0";
-    private static final String UUID_0_name = "Ivan Petrov";
+    private static final String RESUME_0 = "Name0";
+
     private static final String UUID_1 = "uuid1";
+    private static final String RESUME_1 = "Name1";
 
-    private static final String UUID_1_name = "Petr Ivanov";
     private static final String UUID_2 = "uuid2";
+    private static final String RESUME_2 = "Name2";
 
-    private static final String UUID_2_name = "John Smith";
     private static final String UUID_3 = "uuid3";
+    private static final String RESUME_3 = "Name3";
 
-    private static final String UUID_3_name = "Benny Dict";
     public static final String DUMMY = "dummy";
 
 
 
-    private static final Resume r0 = new Resume(UUID_0, UUID_0_name);
-    private static final Resume r1 = new Resume(UUID_1, UUID_1_name);
-    private static final Resume r2 = new Resume(UUID_2, UUID_2_name);
-    private static final Resume r3 = new Resume(UUID_3, UUID_3_name);
+    private static final Resume r0 = new Resume(UUID_0, RESUME_0);
+    private static final Resume r1 = new Resume(UUID_1, RESUME_1);
+    private static final Resume r2 = new Resume(UUID_2, RESUME_2);
+    private static final Resume r3 = new Resume(UUID_3, RESUME_3);
 
 
     protected final Storage storage;
@@ -42,9 +43,6 @@ public abstract class AbstractStorageTest {
     @Before
     public void setUp() {
         storage.clear();
-//        r1.setFullName(UUID_1_name);
-//        r2.setFullName(UUID_2_name);
-//        r3.setFullName(UUID_3_name);
         storage.save(r1);
         storage.save(r2);
         storage.save(r3);
@@ -74,15 +72,14 @@ public abstract class AbstractStorageTest {
     @Test
     public void getAllSorted() {
         List<Resume> expected = new ArrayList<>(Arrays.asList(r1, r2, r3));
-        expected.sort(null);
-        Resume[] actual = storage.getAllSorted().toArray(new Resume[storage.size()]);
-        assertArrayEquals(expected.toArray(), actual);
+        List<Resume> actual = storage.getAllSorted();
+        assertEquals(expected, actual);
     }
 
     @Test
     public void save() {
         storage.save(r0);
-        assertGet(new Resume(UUID_0, UUID_0_name));
+        assertGet(new Resume(UUID_0, RESUME_0));
         assertSize(4);
     }
 
@@ -95,9 +92,9 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void get() {
-        Resume T1 = new Resume(UUID_1, UUID_1_name);
-        Resume T2 = new Resume(UUID_2, UUID_2_name);
-        Resume T3 = new Resume(UUID_3, UUID_3_name);
+        Resume T1 = new Resume(UUID_1, RESUME_1);
+        Resume T2 = new Resume(UUID_2, RESUME_2);
+        Resume T3 = new Resume(UUID_3, RESUME_3);
 
 
         assertGet(T1);

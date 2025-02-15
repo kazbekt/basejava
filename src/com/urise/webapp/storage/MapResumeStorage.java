@@ -3,10 +3,9 @@ package com.urise.webapp.storage;
 import com.urise.webapp.model.Resume;
 
 public class MapResumeStorage extends AbstractMapStorage {
-
     @Override
     protected boolean isExist(Object searchKey) {
-        return searchKey instanceof Resume && storage.containsValue(searchKey);
+        return searchKey != null;
     }
 
     @Override

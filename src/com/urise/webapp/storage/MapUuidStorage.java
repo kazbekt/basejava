@@ -5,6 +5,7 @@ import com.urise.webapp.model.Resume;
 
 public class MapUuidStorage extends AbstractMapStorage {
 
+
     @Override
     protected boolean isExist(Object searchKey) {
         return searchKey instanceof String uuid && storage.containsKey(uuid);
