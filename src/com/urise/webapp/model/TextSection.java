@@ -3,12 +3,12 @@ package com.urise.webapp.model;
 import java.util.Objects;
 
 public class TextSection extends Section {
-    protected String sectionName;
-    protected String content = "";
+    protected String name;
+    protected String content;
 
     public TextSection(SectionType sectionType, String content) {
         super(sectionType);
-        sectionName = sectionType.getSectionName();
+        name = sectionType.getSectionName();
         this.content = content;
     }
 
@@ -18,8 +18,8 @@ public class TextSection extends Section {
                 sectionType == SectionType.PERSONAL;
     }
 
-    public String getSectionName() {
-        return sectionName;
+    public String getName() {
+        return name;
     }
 
     public String getContent() {
@@ -45,7 +45,7 @@ public class TextSection extends Section {
 
     @Override
     public String toString() {
-        return sectionName + '{' +
+        return name + '{' +
                 "content='" + content + '\'' +
                 '}';
     }

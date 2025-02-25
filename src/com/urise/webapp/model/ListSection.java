@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.Objects;
 
 public class ListSection extends Section {
-    protected String sectionName;
+    protected String name;
     protected List<String> content;
 
     public ListSection(SectionType sectionType, List<String> content) {
         super(sectionType);
-        sectionName = sectionType.getSectionName();
+        name = sectionType.getSectionName();
     }
 
     @Override
@@ -18,8 +18,8 @@ public class ListSection extends Section {
                 sectionType == SectionType.QUALIFICATIONS;
     }
 
-    public String getSectionName() {
-        return sectionName;
+    public String getName() {
+        return name;
     }
 
     public List<String> getContent() {

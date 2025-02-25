@@ -1,16 +1,11 @@
 package com.urise.webapp.model;
 
-import com.urise.webapp.storage.Storage;
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.dom.ls.LSOutput;
 
-import java.nio.channels.SelectionKey;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import static org.junit.Assert.*;
 
 public class ResumeTestData {
 
@@ -73,19 +68,19 @@ public class ResumeTestData {
                         new ArrayList<>(Arrays.asList(QUALIFICATION1, QUALIFICATION2))));
 
         Company workplace = new Company(WORKPLACE1_NAME, WORKPLACE1_WEBSITE);
-        Company.Interval work_interval = workplace.new Interval(WORKPLACE1_INTERVAL_NAME,
+        Period work_period = new Period(WORKPLACE1_INTERVAL_NAME,
                 WORKPLACE1_INTERVAL_START_DATE, WORKPLACE1_INTERVAL_END_DATE);
-        work_interval.setDescription(WORKPLACE1_INTERVAL_DESCRIPTION);
-        workplace.addInterval(work_interval);
+        work_period.setDescription(WORKPLACE1_INTERVAL_DESCRIPTION);
+        workplace.addInterval(work_period);
 
         resume.setSection(SectionType.EXPERIENCE,
                 new CompanySection(SectionType.EXPERIENCE,
                         new ArrayList<>(Arrays.asList(workplace))));
 
         Company education = new Company(EDUCATION1_NAME, EDUCATION1_WEBSITE);
-        Company.Interval edc_interval = education.new Interval(EDUCATION1_INTERVAL_NAME,
+        Period edc_period = new Period(EDUCATION1_INTERVAL_NAME,
                 EDUCATION1_INTERVAL_START_DATE, EDUCATION1_INTERVAL_END_DATE);
-        education.addInterval(edc_interval);
+        education.addInterval(edc_period);
 
         resume.setSection(SectionType.EXPERIENCE,
                 new CompanySection(SectionType.EXPERIENCE,

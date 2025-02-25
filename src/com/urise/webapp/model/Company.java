@@ -6,17 +6,17 @@ import java.util.List;
 import java.util.Objects;
 
 public class Company {
-    private String name = "";
-    private String website = "";
-    protected List<Interval> intervals = new ArrayList<>();
+    private String name;
+    private String website;
+    protected List<Period> periods = new ArrayList<>();
 
     public Company(String name, String website) {
         this.name = name;
         this.website = website;
     }
 
-    public void addInterval(Interval interval) {
-        intervals.add(interval);
+    public void addInterval(Period period) {
+        periods.add(period);
     }
 
     public String getName() {
@@ -35,8 +35,8 @@ public class Company {
         this.website = website;
     }
 
-    public List<Interval> getIntervals() {
-        return intervals;
+    public List<Period> getIntervals() {
+        return periods;
     }
 
     @Override
@@ -44,12 +44,12 @@ public class Company {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Company company = (Company) o;
-        return Objects.equals(name, company.name) && Objects.equals(website, company.website) && Objects.equals(intervals, company.intervals);
+        return Objects.equals(name, company.name) && Objects.equals(website, company.website) && Objects.equals(periods, company.periods);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, website, intervals);
+        return Objects.hash(name, website, periods);
     }
 
     @Override
@@ -57,76 +57,10 @@ public class Company {
         return "Company{" +
                 "name='" + name + '\'' +
                 ", website='" + website + '\'' +
-                ", intervals=" + intervals +
+                ", intervals=" + periods +
                 '}';
     }
 
-    protected class Interval {
-        private String name = "";
-        private LocalDate startDate;
-        private LocalDate endDate;
-        private String description = "";
 
-        public Interval(String name, LocalDate startDate, LocalDate endDate) {
-            this.name = name;
-            this.startDate = startDate;
-            this.endDate = endDate;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public LocalDate getStartDate() {
-            return startDate;
-        }
-
-        public void setStartDate(LocalDate startDate) {
-            this.startDate = startDate;
-        }
-
-        public LocalDate getEndDate() {
-            return endDate;
-        }
-
-        public void setEndDate(LocalDate endDate) {
-            this.endDate = endDate;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            Interval interval = (Interval) o;
-            return Objects.equals(name, interval.name) && Objects.equals(startDate, interval.startDate) && Objects.equals(endDate, interval.endDate) && Objects.equals(description, interval.description);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(name, startDate, endDate, description);
-        }
-
-        @Override
-        public String toString() {
-            return "Interval{" +
-                    "name='" + name + '\'' +
-                    ", startDate=" + startDate +
-                    ", endDate=" + endDate +
-                    ", description='" + description + '\'' +
-                    '}';
-        }
-    }
 
 }
