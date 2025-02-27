@@ -4,49 +4,34 @@ import java.util.List;
 import java.util.Objects;
 
 public class ListSection extends Section {
-    protected String name;
-    protected List<String> content;
+    private final List<String> items;
 
-    public ListSection(SectionType sectionType, List<String> content) {
-        super(sectionType);
-        name = sectionType.getSectionName();
+    public ListSection(List<String> items) {
+        Objects.requireNonNull(items, "items must not be null");
+        this.items = items;
+    }
+
+    public List<String> getItems() {
+        return items;
     }
 
     @Override
-    protected boolean isValidSectionType(SectionType sectionType) {
-        return sectionType == SectionType.ACHIEVEMENT ||
-                sectionType == SectionType.QUALIFICATIONS;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public List<String> getContent() {
-        return content;
-    }
-
-    public void setContent(List<String> content) {
-        this.content = content;
+    public String toString() {
+        return items.toString();
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         ListSection that = (ListSection) o;
-        return Objects.equals(content, that.content);
+
+        return items.equals(that.items);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(content);
-    }
-
-    @Override
-    public String toString() {
-        return "ListSection{" +
-                "content=" + content +
-                '}';
+        return items.hashCode();
     }
 }
