@@ -29,12 +29,28 @@ public class Resume implements Comparable<Resume> {
         return uuid;
     }
 
+    public String getFullName() {
+        return fullName;
+    }
+
     public String getContact(ContactType type) {
         return contacts.get(type);
     }
 
     public Section getSection(SectionType type) {
         return sections.get(type);
+    }
+
+    public void addContact(ContactType type, String value) {
+        Objects.requireNonNull(type, "Contact type must not be null");
+        Objects.requireNonNull(value, "Contact value must not be null");
+        contacts.put(type, value);
+    }
+
+    public void addSection(SectionType type, Section section) {
+        Objects.requireNonNull(type, "Contact type must not be null");
+        Objects.requireNonNull(section, "Contact value must not be null");
+        sections.put(type, section);
     }
 
     @Override
@@ -57,7 +73,12 @@ public class Resume implements Comparable<Resume> {
 
     @Override
     public String toString() {
-        return uuid + '(' + fullName + ')';
+        return "Resume{\n" +
+                "  uuid='" + uuid + "',\n" +
+                "  fullName='" + fullName + "',\n" +
+                "  contacts=" + contacts + ",\n" +
+                "  sections=" + sections  +
+                "}";
     }
 
     @Override
