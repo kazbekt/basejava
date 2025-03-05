@@ -3,71 +3,109 @@ package com.urise.webapp.storage;
 import com.urise.webapp.model.Resume;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class AbstractFileStorage extends AbstractStorage<File>{
+public abstract class AbstractFileStorage extends AbstractStorage<File> {
     private final File storage;
 
-    private AbstractFileStorage(File storage){
+    private AbstractFileStorage(File storage) {
         Objects.requireNonNull(storage, "directory must not be null");
+
+        if (!storage.isDirectory()) {
+            throw new IllegalArgumentException(storage + " is not a directory");
+        }
+
+        if (!storage.canRead() || !storage.canWrite()) {
+            throw new IllegalArgumentException("No read/write access to directory: " + storage);
+        }
         this.storage = storage;
     }
 
+    protected abstract void doWrite(Resume resume, File storage) throws IOException;
+    protected abstract Resume doRead(File searchKey) throws IOException;
+
     @Override
     protected File getSearchKey(String uuid) {
-        return new File(storage,uuid);
+        return new File(storage, uuid);
     }
 
     @Override
     protected void doUpdate(Resume r, File searchKey) {
-
+        if (!isExist(searchKey)) {
+            throw new RuntimeException("Resume " + r.getUuid() + " does not exist");
+        }
+        try {
+            doWrite(r, searchKey);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to update resume: " + r.getUuid(), e);
+        }
     }
 
     @Override
     protected boolean isExist(File searchKey) {
-        String[] files = storage.list();
-        if (files != null) {
-            for (String file : files) {
-                if (file.equals(searchKey.getName())) {
-                    return true;
-                }
-            }}
-        return false;
+        return searchKey.exists();
     }
 
     @Override
-    protected void doSave(Resume r, File searchKey) {
-
+    protected void doSave(Resume r, File file) {
+        try {
+            file.createNewFile();
+            doWrite(r, file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     protected Resume doGet(File searchKey) {
-        return null;
+        try {
+            return doRead(searchKey);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     protected void doDelete(File searchKey) {
-
+        if (!searchKey.exists()) {
+            throw new RuntimeException("Resume " + searchKey.getName() + " does not exist");
+        }
+        if (!searchKey.delete()) {
+            throw new RuntimeException("Failed to delete resume: " + searchKey.getName());
+        }
     }
 
     @Override
     protected List<Resume> doCopyAll() {
-        return null;
+        File[] files = storage.listFiles();
+        if (files == null) {
+            return Collections.emptyList();
+        }
+        List<Resume> storageCopy = new ArrayList<>();
+        for (File file : files) {
+            storageCopy.add(doGet(file));
+        }
+        return storageCopy;
     }
 
-    @Override
-    public List<Resume> getAllSorted() {
-        return super.getAllSorted();
-    }
 
     @Override
     public void clear() {
-
+        File[] files = storage.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                doDelete(file);
+            }
+        }
     }
 
     @Override
     public int size() {
-        return 0;
+        String[] files = storage.list();
+        return files == null ? 0 : files.length;
     }
 }
