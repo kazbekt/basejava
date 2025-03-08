@@ -20,19 +20,20 @@ public class MainFile {
         }
 
         File dir1 = new File("C:\\Users\\LOVE\\IdeaProjects\\basejava");
-        recList(dir1);
+        printDirectoryDeeply(dir1);
     }
 
 
-    public static void recList(File file) {
+    public static void printDirectoryDeeply(File file) {
         String[] list = file.list();
         if (list != null) {
             for (String s : list) {
                 File file1 = new File(file, s);
                 if (file1.isFile()) {
-                    System.out.println(s);
+                    System.out.println("File: " + s);
                 } else {
-                    recList(file1);
+                    System.out.println("Directory: " + s);
+                    printDirectoryDeeply(file1);
                 }
             }
         }

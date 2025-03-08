@@ -1,13 +1,8 @@
 package com.urise.webapp.model;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
 
 public class ResumeTestData {
 
@@ -77,9 +72,9 @@ public class ResumeTestData {
                 new ArrayList<>(){{
                     add(new Organization(WORKPLACE1_NAME, WORKPLACE1_WEBSITE){{
                         addPeriod(new Period(
-                                WORKPLACE1_INTERVAL_NAME,
                                 WORKPLACE1_INTERVAL_START_DATE,
                                 WORKPLACE1_INTERVAL_END_DATE,
+                                WORKPLACE1_INTERVAL_NAME,
                                 WORKPLACE1_INTERVAL_DESCRIPTION
                         ));
                     }});
@@ -90,9 +85,10 @@ public class ResumeTestData {
         Section education = new OrganizationSection(new ArrayList<>(){{
             add(new Organization(EDUCATION1_NAME, EDUCATION1_WEBSITE){{
                 addPeriod(new Period(
-                        EDUCATION1_INTERVAL_NAME,
+
                         EDUCATION1_INTERVAL_START_DATE,
                         EDUCATION1_INTERVAL_END_DATE,
+                        EDUCATION1_INTERVAL_NAME,
                         null
                 ));
             }});
