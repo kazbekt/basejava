@@ -1,5 +1,6 @@
 package com.urise.webapp.storage;
 
+import com.urise.webapp.exception.StorageException;
 import com.urise.webapp.model.Resume;
 
 import java.io.File;
@@ -36,12 +37,12 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
     @Override
     protected void doUpdate(Resume r, File searchKey) {
         if (!isExist(searchKey)) {
-            throw new RuntimeException("Resume " + r.getUuid() + " does not exist");
+            throw new StorageException(r.getUuid(), "Resume does not exist");
         }
         try {
             doWrite(r, searchKey);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to update resume: " + r.getUuid(), e);
+            throw new StorageException(r.getUuid(), "Failed to update resume: ");
         }
     }
 
@@ -56,7 +57,7 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
             file.createNewFile();
             doWrite(r, file);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new StorageException(r.getUuid(), "Filed to save resume");
         }
     }
 
@@ -65,31 +66,29 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
         try {
             return doRead(searchKey);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new StorageException(searchKey.getName(), "Failed to read resume");
         }
     }
 
     @Override
     protected void doDelete(File searchKey) {
-        if (!searchKey.exists()) {
-            throw new RuntimeException("Resume " + searchKey.getName() + " does not exist");
-        }
         if (!searchKey.delete()) {
-            throw new RuntimeException("Failed to delete resume: " + searchKey.getName());
+            throw new StorageException(searchKey.getName(), "Failed to delete resume");
         }
     }
 
     @Override
     protected List<Resume> doCopyAll() {
         File[] files = storage.listFiles();
-        if (files == null) {
-            return Collections.emptyList();
+        if (files != null) {
+            List<Resume> storageCopy = new ArrayList<>();
+            for (File file : files) {
+                storageCopy.add(doGet(file));
+            }
+            return storageCopy;
+        } else {
+            throw new StorageException(storage.getName(), "Failed to copy storage");
         }
-        List<Resume> storageCopy = new ArrayList<>();
-        for (File file : files) {
-            storageCopy.add(doGet(file));
-        }
-        return storageCopy;
     }
 
 
@@ -100,12 +99,18 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
             for (File file : files) {
                 doDelete(file);
             }
+        }else {
+            throw new StorageException(storage.getName(), "Failed to clear storage");
         }
     }
 
     @Override
     public int size() {
         String[] files = storage.list();
-        return files == null ? 0 : files.length;
+        if (files!= null) {
+            return files.length;
+        } else {
+            throw new StorageException(storage.getName(), "Failed to return storage size");
+        }
     }
 }
