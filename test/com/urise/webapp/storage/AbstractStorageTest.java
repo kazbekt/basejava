@@ -6,6 +6,9 @@ import com.urise.webapp.model.ResumeTestData;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +16,9 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 public abstract class AbstractStorageTest {
+    protected static final File STORAGE_DIR = new File("C:\\Users\\LOVE\\IdeaProjects\\basejava\\testStorage");
+
+    protected static final String STORAGE_DIR_PATH = "C:\\Users\\LOVE\\IdeaProjects\\basejava\\testStorage";
     private static final String UUID_0 = "uuid0";
     private static final String RESUME_0 = "Name0";
 
@@ -68,8 +74,10 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void update() {
-        assertSame(r1, storage.get(UUID_1));
-    }
+            Resume newResume = new Resume(UUID_1, "New Name");
+            storage.update(newResume);
+            assertEquals(newResume, storage.get(UUID_1));
+        }
 
     @Test
     public void getAllSorted() {

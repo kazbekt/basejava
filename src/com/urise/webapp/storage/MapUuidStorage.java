@@ -25,4 +25,8 @@ public class MapUuidStorage extends AbstractMapStorage<String> {
         storage.remove(searchKey);
     }
 
+    protected void doUpdate(Resume r, String searchKey) {
+        storage.put(searchKey, r);
+    }
+
 }

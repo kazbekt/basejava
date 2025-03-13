@@ -14,6 +14,11 @@ public class MapResumeStorage extends AbstractMapStorage<Resume> {
     }
 
     @Override
+    protected void doUpdate(Resume r, Resume searchKey) {
+        storage.put(searchKey.getUuid(), r);
+    }
+
+    @Override
     protected Resume doGet(Resume searchKey) {
         return searchKey;
     }
@@ -22,4 +27,5 @@ public class MapResumeStorage extends AbstractMapStorage<Resume> {
     protected void doDelete(Resume searchKey) {
         storage.remove(searchKey.getUuid());
     }
+
 }

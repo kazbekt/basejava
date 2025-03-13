@@ -3,16 +3,15 @@ package com.urise.webapp.storage;
 import com.urise.webapp.exception.StorageException;
 import com.urise.webapp.model.Resume;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class AbstractFileStorage extends AbstractStorage<File> {
+public abstract class AbstractFileStorage extends AbstractStorage<File> implements StreamSerializer{
     private final File storage;
 
-    private AbstractFileStorage(File storage) {
+    protected AbstractFileStorage(File storage) {
         Objects.requireNonNull(storage, "directory must not be null");
 
         if (!storage.isDirectory()) {
@@ -25,10 +24,6 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
         this.storage = storage;
     }
 
-    protected abstract void doWrite(Resume resume, File storage) throws IOException;
-
-    protected abstract Resume doRead(File searchKey) throws IOException;
-
     @Override
     protected File getSearchKey(String uuid) {
         return new File(storage, uuid);
@@ -37,7 +32,7 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
     @Override
     protected void doUpdate(Resume r, File searchKey) {
         try {
-            doWrite(r, searchKey);
+            doWrite(r, new BufferedOutputStream(new FileOutputStream(searchKey)));
         } catch (IOException e) {
             throw new StorageException("Failed to write resume", r.getUuid(), e);
         }
@@ -61,7 +56,7 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> {
     @Override
     protected Resume doGet(File searchKey) {
         try {
-            return doRead(searchKey);
+            return doRead(new BufferedInputStream(new FileInputStream(searchKey)));
         } catch (IOException e) {
             throw new StorageException("Failed to read resume", searchKey.getName(), e);
         }

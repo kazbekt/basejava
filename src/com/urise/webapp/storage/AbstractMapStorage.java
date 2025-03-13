@@ -33,10 +33,6 @@ public abstract class AbstractMapStorage<SK> extends AbstractStorage<SK>{
         storage.put(r.getUuid(), r);
     }
 
-    @Override
-    protected void doUpdate(Resume r, SK searchKey) {
-        storage.put((String) searchKey, r);
-    }
 
     protected abstract boolean isExist(SK searchKey);
 
