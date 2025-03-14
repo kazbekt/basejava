@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractMapStorage<SK> extends AbstractStorage<SK>{
+public abstract class AbstractMapStorage<SK> extends AbstractStorage<SK> {
 
     protected static final Map<String, Resume> storage = new HashMap<>();
 
@@ -32,7 +32,6 @@ public abstract class AbstractMapStorage<SK> extends AbstractStorage<SK>{
     protected void doSave(Resume r, SK searchKey) {
         storage.put(r.getUuid(), r);
     }
-
 
     protected abstract boolean isExist(SK searchKey);
 

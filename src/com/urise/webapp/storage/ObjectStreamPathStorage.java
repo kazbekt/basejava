@@ -20,7 +20,6 @@ public class ObjectStreamPathStorage extends AbstractPathStorage {
     @Override
     public Resume doRead(InputStream is) throws IOException {
         try (ObjectInputStream inputStream = new ObjectInputStream(is)) {
-            System.out.println("тут еще нет ошибки");
             return (Resume) inputStream.readObject();
         } catch (ClassNotFoundException e) {
             throw new StorageException("Error read resume", null, e);

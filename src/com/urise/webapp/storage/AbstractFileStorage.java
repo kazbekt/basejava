@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public abstract class AbstractFileStorage extends AbstractStorage<File> implements StreamSerializer{
+public abstract class AbstractFileStorage extends AbstractStorage<File> {
     private final File storage;
 
     protected AbstractFileStorage(File storage) {
@@ -23,6 +23,10 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> implemen
         }
         this.storage = storage;
     }
+
+    protected abstract void doWrite(Resume resume, OutputStream file) throws IOException;
+
+    protected abstract Resume doRead(InputStream is) throws IOException;
 
     @Override
     protected File getSearchKey(String uuid) {
@@ -83,7 +87,6 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> implemen
         }
     }
 
-
     @Override
     public void clear() {
         File[] files = storage.listFiles();
@@ -95,7 +98,6 @@ public abstract class AbstractFileStorage extends AbstractStorage<File> implemen
             }
         }
     }
-
 
     @Override
     public int size() {
