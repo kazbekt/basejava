@@ -6,17 +6,17 @@ import com.urise.webapp.storage.serializer.ObjectStreamSerializer;
 import com.urise.webapp.storage.serializer.StreamSerializer;
 
 import java.io.*;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PathStorage extends AbstractStorage<Path> {
-    private StreamSerializer serializer;
-    private Path storage;
+    private final StreamSerializer serializer;
+    private final Path storage;
 
     protected PathStorage(String dir) {
         Objects.requireNonNull(dir, "directory must not be null");
@@ -30,14 +30,6 @@ public class PathStorage extends AbstractStorage<Path> {
         serializer = new ObjectStreamSerializer();
     }
 
-    protected void doWrite(Resume resume, OutputStream os) throws IOException {
-        serializer.doWrite(resume, os);
-    }
-
-    protected Resume doRead(InputStream is) throws IOException {
-        return serializer.doRead(is);
-    }
-
     @Override
     protected Path getSearchKey(String uuid) {
         return storage.resolve(uuid);
@@ -46,7 +38,7 @@ public class PathStorage extends AbstractStorage<Path> {
     @Override
     protected void doUpdate(Resume r, Path searchKey) {
         try {
-            doWrite(r, new BufferedOutputStream(Files.newOutputStream(searchKey)));
+            serializer.doWrite(r, new BufferedOutputStream(Files.newOutputStream(searchKey)));
         } catch (IOException e) {
             throw new StorageException("Failed to write resume", r.getUuid(), e);
         }
@@ -65,12 +57,9 @@ public class PathStorage extends AbstractStorage<Path> {
     @Override
     protected Resume doGet(Path searchKey) {
         try {
-            if (Files.size(searchKey) == 0) {
-                throw new StorageException("File is empty", searchKey.getFileName().toString());
-            }
-            return doRead(new BufferedInputStream(Files.newInputStream(searchKey)));
+            return serializer.doRead(new BufferedInputStream(Files.newInputStream(searchKey)));
         } catch (IOException e) {
-            throw new StorageException("Failed to read resume", searchKey.getFileName().toString(), e);
+            throw new StorageException("Failed to read resume", getFileName(searchKey), e);
         }
     }
 
@@ -79,39 +68,42 @@ public class PathStorage extends AbstractStorage<Path> {
         try {
             Files.delete(searchKey);
         } catch (IOException e) {
-            throw new StorageException("Failed to delete resume", searchKey.getFileName().toString(), e);
+            throw new StorageException("Failed to delete resume", getFileName(searchKey), e);
         }
     }
 
     @Override
     protected List<Resume> doCopyAll() {
-        List<Resume> list = new ArrayList<>();
-
-        try (DirectoryStream<Path> files = Files.newDirectoryStream(storage)) {
-            for (Path path : files) {
-                list.add(doGet(path));
-            }
+        try {
+            return getStorageList().map(this::doGet).collect(Collectors.toList());
         } catch (IOException e) {
-            throw new StorageException("Failed to copy storage", storage.getFileName().toString());
+            throw new StorageException("Failed to copy storage", getFileName(storage));
         }
-        return list;
     }
 
     @Override
     public void clear() {
         try {
-            Files.list(storage).forEach(this::doDelete);
+            getStorageList().forEach(this::doDelete);
         } catch (IOException e) {
-            throw new StorageException("Failed to clear storage", storage.getFileName().toString());
+            throw new StorageException("Failed to clear storage", getFileName(storage));
         }
     }
 
     @Override
     public int size() {
         try {
-            return (int) Files.list(storage).count();
+            return (int) getStorageList().count();
         } catch (IOException e) {
-            throw new StorageException("Failed to return storage size", storage.getFileName().toString());
+            throw new StorageException("Failed to return storage size", getFileName(storage));
         }
+    }
+
+    private Stream<Path> getStorageList() throws IOException {
+        return Files.list(storage);
+    }
+
+    private static String getFileName(Path searchKey) {
+        return searchKey.getFileName().toString();
     }
 }

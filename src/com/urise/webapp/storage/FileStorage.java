@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class FileStorage extends AbstractStorage<File> {
-    private StreamSerializer serializer;
+    private final StreamSerializer serializer;
     private final File storage;
 
     protected FileStorage(File storage) {
@@ -28,14 +28,6 @@ public class FileStorage extends AbstractStorage<File> {
         serializer = new ObjectStreamSerializer();
     }
 
-    protected void doWrite(Resume resume, OutputStream os) throws IOException {
-        serializer.doWrite(resume, os);
-    }
-
-    protected Resume doRead(InputStream is) throws IOException {
-        return serializer.doRead(is);
-    }
-
     @Override
     protected File getSearchKey(String uuid) {
         return new File(storage, uuid);
@@ -44,7 +36,7 @@ public class FileStorage extends AbstractStorage<File> {
     @Override
     protected void doUpdate(Resume r, File searchKey) {
         try {
-            doWrite(r, new BufferedOutputStream(new FileOutputStream(searchKey)));
+            serializer.doWrite(r, new BufferedOutputStream(new FileOutputStream(searchKey)));
         } catch (IOException e) {
             throw new StorageException("Failed to write resume", r.getUuid(), e);
         }
@@ -68,7 +60,7 @@ public class FileStorage extends AbstractStorage<File> {
     @Override
     protected Resume doGet(File searchKey) {
         try {
-            return doRead(new BufferedInputStream(new FileInputStream(searchKey)));
+            return serializer.doRead(new BufferedInputStream(new FileInputStream(searchKey)));
         } catch (IOException e) {
             throw new StorageException("Failed to read resume", searchKey.getName(), e);
         }
@@ -83,37 +75,31 @@ public class FileStorage extends AbstractStorage<File> {
 
     @Override
     protected List<Resume> doCopyAll() {
-        File[] files = storage.listFiles();
-        if (files == null) {
-            throw new StorageException("Failed to copy storage", storage.getName());
-        } else {
-            List<Resume> storageCopy = new ArrayList<>();
-            for (File file : files) {
-                storageCopy.add(doGet(file));
-            }
-            return storageCopy;
+        List<Resume> storageCopy = new ArrayList<>();
+        for (File file : getStorageFilesArray()) {
+            storageCopy.add(doGet(file));
         }
+        return storageCopy;
     }
 
     @Override
     public void clear() {
-        File[] files = storage.listFiles();
-        if (files == null) {
-            throw new StorageException("Failed to clear storage", storage.getName());
-        } else {
-            for (File file : files) {
-                doDelete(file);
-            }
+        for (File file : getStorageFilesArray()) {
+            doDelete(file);
         }
     }
 
     @Override
     public int size() {
-        String[] files = storage.list();
+        return getStorageFilesArray().length;
+    }
+
+    private File[] getStorageFilesArray() {
+        File[] files = storage.listFiles();
         if (files == null) {
-            throw new StorageException("Failed to return storage size", storage.getName());
+            throw new StorageException("Failed to read storage", storage.getName());
         } else {
-            return files.length;
+            return files;
         }
     }
 }
