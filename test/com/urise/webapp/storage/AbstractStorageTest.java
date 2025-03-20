@@ -7,8 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,8 +15,6 @@ import static org.junit.Assert.*;
 
 public abstract class AbstractStorageTest {
     protected static final File STORAGE_DIR = new File("C:\\Users\\LOVE\\IdeaProjects\\basejava\\testStorage");
-
-    protected static final String STORAGE_DIR_PATH = "C:\\Users\\LOVE\\IdeaProjects\\basejava\\testStorage";
     private static final String UUID_0 = "uuid0";
     private static final String RESUME_0 = "Name0";
 

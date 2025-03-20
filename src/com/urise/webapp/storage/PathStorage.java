@@ -2,7 +2,6 @@ package com.urise.webapp.storage;
 
 import com.urise.webapp.exception.StorageException;
 import com.urise.webapp.model.Resume;
-import com.urise.webapp.storage.serializer.ObjectStreamSerializer;
 import com.urise.webapp.storage.serializer.StreamSerializer;
 
 import java.io.*;
@@ -18,7 +17,7 @@ public class PathStorage extends AbstractStorage<Path> {
     private final StreamSerializer serializer;
     private final Path storage;
 
-    protected PathStorage(String dir) {
+    protected PathStorage(String dir, StreamSerializer serializer) {
         Objects.requireNonNull(dir, "directory must not be null");
         storage = Paths.get(dir);
         if (!Files.isDirectory(storage)) {
@@ -27,7 +26,7 @@ public class PathStorage extends AbstractStorage<Path> {
         if (!Files.isReadable(storage) || !Files.isWritable(storage)) {
             throw new IllegalArgumentException("No read/write access to directory: " + storage);
         }
-        serializer = new ObjectStreamSerializer();
+        this.serializer = serializer;
     }
 
     @Override
@@ -46,11 +45,16 @@ public class PathStorage extends AbstractStorage<Path> {
 
     @Override
     protected boolean isExist(Path searchKey) {
-        return Files.exists(searchKey);
+        return Files.isRegularFile(searchKey);
     }
 
     @Override
     protected void doSave(Resume r, Path searchKey) {
+        try {
+            Files.createFile(searchKey);
+        } catch (IOException e) {
+            throw new StorageException("Couldn't create path " + searchKey, getFileName(searchKey), e);
+        }
         doUpdate(r, searchKey);
     }
 
@@ -74,33 +78,25 @@ public class PathStorage extends AbstractStorage<Path> {
 
     @Override
     protected List<Resume> doCopyAll() {
-        try {
-            return getStorageList().map(this::doGet).collect(Collectors.toList());
-        } catch (IOException e) {
-            throw new StorageException("Failed to copy storage", getFileName(storage));
-        }
+        return getStorageList().map(this::doGet).collect(Collectors.toList());
     }
 
     @Override
     public void clear() {
-        try {
-            getStorageList().forEach(this::doDelete);
-        } catch (IOException e) {
-            throw new StorageException("Failed to clear storage", getFileName(storage));
-        }
+        getStorageList().forEach(this::doDelete);
     }
 
     @Override
     public int size() {
-        try {
-            return (int) getStorageList().count();
-        } catch (IOException e) {
-            throw new StorageException("Failed to return storage size", getFileName(storage));
-        }
+        return (int) getStorageList().count();
     }
 
-    private Stream<Path> getStorageList() throws IOException {
-        return Files.list(storage);
+    private Stream<Path> getStorageList() {
+        try {
+            return Files.list(storage);
+        } catch (IOException e) {
+            throw new StorageException("Storage read error", getFileName(storage), e);
+        }
     }
 
     private static String getFileName(Path searchKey) {

@@ -2,7 +2,6 @@ package com.urise.webapp.storage;
 
 import com.urise.webapp.exception.StorageException;
 import com.urise.webapp.model.Resume;
-import com.urise.webapp.storage.serializer.ObjectStreamSerializer;
 import com.urise.webapp.storage.serializer.StreamSerializer;
 
 import java.io.*;
@@ -14,7 +13,7 @@ public class FileStorage extends AbstractStorage<File> {
     private final StreamSerializer serializer;
     private final File storage;
 
-    protected FileStorage(File storage) {
+    protected FileStorage(File storage, StreamSerializer serializer) {
         Objects.requireNonNull(storage, "directory must not be null");
 
         if (!storage.isDirectory()) {
@@ -25,7 +24,7 @@ public class FileStorage extends AbstractStorage<File> {
             throw new IllegalArgumentException("No read/write access to directory: " + storage);
         }
         this.storage = storage;
-        serializer = new ObjectStreamSerializer();
+        this.serializer = serializer;
     }
 
     @Override
