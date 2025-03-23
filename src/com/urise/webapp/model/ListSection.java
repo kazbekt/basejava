@@ -25,6 +25,10 @@ public class ListSection extends Section {
         return items;
     }
 
+    public void addItem(String item) {
+        this.items.add(item);
+    }
+
     @Override
     public String toString() {
         return "ListSection{" +

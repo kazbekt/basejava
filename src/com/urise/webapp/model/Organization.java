@@ -29,6 +29,14 @@ public class Organization implements Serializable {
         this.periods = new ArrayList<>();
     }
 
+    public Link getHomePage() {
+        return homePage;
+    }
+
+    public List<Period> getPeriods() {
+        return periods;
+    }
+
     public Organization(String name, String url, Period... periods) {
         this(name, url);
         this.periods.addAll(Arrays.asList(periods));
@@ -79,6 +87,7 @@ public class Organization implements Serializable {
             Objects.requireNonNull(title, "title must not be null");
             Objects.requireNonNull(startDate, "startDate must not be null");
             Objects.requireNonNull(endDate, "endDate must not be null");
+            Objects.requireNonNull(endDate, "description must not be null");
             this.title = title;
             this.startDate = startDate;
             this.endDate = endDate;
@@ -91,6 +100,22 @@ public class Organization implements Serializable {
 
         public Period(int startYear, Month startMonth, int endYear, Month endMonth, String title, String description) {
             this(of(startYear, startMonth), of(endYear, endMonth), title, description);
+        }
+
+        public LocalDate getStartDate() {
+            return startDate;
+        }
+
+        public LocalDate getEndDate() {
+            return endDate;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public String getDescription() {
+            return description;
         }
 
         public boolean equals(Object o) {

@@ -89,7 +89,7 @@ public class ResumeTestData {
                         EDUCATION1_INTERVAL_START_DATE,
                         EDUCATION1_INTERVAL_END_DATE,
                         EDUCATION1_INTERVAL_NAME,
-                        null
+                        ""
                 ));
             }});
         }});
