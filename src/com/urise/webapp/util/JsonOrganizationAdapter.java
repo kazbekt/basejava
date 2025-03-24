@@ -4,8 +4,6 @@ import com.google.gson.*;
 import com.urise.webapp.model.Organization;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
 
 public class JsonOrganizationAdapter implements JsonSerializer<Organization>, JsonDeserializer<Organization> {
     @Override
@@ -27,7 +25,6 @@ public class JsonOrganizationAdapter implements JsonSerializer<Organization>, Js
         JsonObject jsonObject = json.getAsJsonObject();
         JsonObject homePageObj = jsonObject.getAsJsonObject("homePage");
 
-        // Проверка на null или пустые строки
         String homePageName = homePageObj.get("name").getAsString();
         String homePageUrl = homePageObj.has("url") ? homePageObj.get("url").getAsString() : null;
 

@@ -3,7 +3,6 @@ package com.urise.webapp.util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.urise.webapp.model.Organization;
-import com.urise.webapp.model.OrganizationSection;
 import com.urise.webapp.model.Section;
 
 import java.io.Reader;
@@ -23,6 +22,7 @@ public class JsonParser {
     }
 
     public static <T> void write(T object, Writer writer) {
+        System.out.println("Serialized JSON: " + GSON.toJson(object));
         GSON.toJson(object, writer);
     }
 }

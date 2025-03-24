@@ -2,6 +2,7 @@ package com.urise.webapp.storage.serializer;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+
 import com.urise.webapp.model.Resume;
 import com.urise.webapp.util.JsonParser;
 
@@ -20,5 +21,6 @@ public class JsonStreamSerializer implements StreamSerializer {
             return JsonParser.read(reader, Resume.class);
         }
     }
+
 }
 

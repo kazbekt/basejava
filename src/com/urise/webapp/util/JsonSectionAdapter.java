@@ -1,58 +1,62 @@
 package com.urise.webapp.util;
 
 import com.google.gson.*;
-import com.urise.webapp.model.*;
+import com.urise.webapp.model.Section;
 
 import java.lang.reflect.Type;
-import java.time.LocalDate;
 
 public class JsonSectionAdapter implements JsonSerializer<Section>, JsonDeserializer<Section> {
     private static final String CLASSNAME = "CLASSNAME";
     private static final String INSTANCE = "INSTANCE";
 
-    private static final Gson GSON = new GsonBuilder()
-            .registerTypeAdapter(Organization.class, new JsonOrganizationAdapter()) // Только для Organization
-            .registerTypeAdapter(Organization.Period.class, new JsonPeriodAdapter())
-            .registerTypeAdapter(LocalDate.class, new LocalDateJsonAdapter())
-            .create();
+    @Override
+    public JsonElement serialize(Section section, Type type, JsonSerializationContext context) {
+        if (section == null) {
+            return JsonNull.INSTANCE;
+        }
+
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty(CLASSNAME, section.getClass().getName());
+        jsonObject.add(INSTANCE, context.serialize(section));
+        return jsonObject;
+    }
 
     @Override
-    public Section deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
+    public Section deserialize(JsonElement json, Type type, JsonDeserializationContext context)
+            throws JsonParseException {
+
+        if (json == null || json.isJsonNull()) {
+            return null;
+        }
+
+        if (!json.isJsonObject()) {
+            throw new JsonParseException("Expected JSON object, got: " + json);
+        }
+
         JsonObject jsonObject = json.getAsJsonObject();
+
+        if (!jsonObject.has(CLASSNAME)) {
+            throw new JsonParseException("JSON must contain '" + CLASSNAME + "' field");
+        }
+
         String className = jsonObject.get(CLASSNAME).getAsString();
+
+        if (!jsonObject.has(INSTANCE)) {
+            throw new JsonParseException("JSON must contain '" + INSTANCE + "' field");
+        }
+
+        JsonElement instanceElement = jsonObject.get(INSTANCE);
 
         try {
             Class<?> clazz = Class.forName(className);
 
-            if (OrganizationSection.class.isAssignableFrom(clazz)) {
-                // Десериализуем OrganizationSection отдельно
-                return GSON.fromJson(jsonObject.get(INSTANCE), OrganizationSection.class);
+            if (!Section.class.isAssignableFrom(clazz)) {
+                throw new JsonParseException("Class " + className + " is not a subtype of Section");
             }
 
-            return context.deserialize(jsonObject.get(INSTANCE), clazz);
+            return context.deserialize(instanceElement, clazz);
         } catch (ClassNotFoundException e) {
-            throw new JsonParseException("Unknown class: " + className, e);
+            throw new JsonParseException("Class not found: " + className, e);
         }
-    }
-
-    @Override
-    public JsonElement serialize(Section section, Type type, JsonSerializationContext context) {
-        JsonObject retValue = new JsonObject();
-        retValue.addProperty(CLASSNAME, section.getClass().getName());
-
-        if (section instanceof OrganizationSection) {
-            JsonObject organizationSectionJson = new JsonObject();
-            JsonArray organizationsArray = new JsonArray();
-
-            // Сериализуем все организации в разделе
-            for (Organization organization : ((OrganizationSection) section).getOrganizations()) {
-                organizationsArray.add(context.serialize(organization));
-            }
-            organizationSectionJson.add("organizations", organizationsArray);
-            retValue.add(INSTANCE, organizationSectionJson);
-        } else {
-            retValue.add(INSTANCE, context.serialize(section));
-        }
-        return retValue;
     }
 }
