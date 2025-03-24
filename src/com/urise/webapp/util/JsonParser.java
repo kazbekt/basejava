@@ -2,6 +2,8 @@ package com.urise.webapp.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.urise.webapp.model.Organization;
+import com.urise.webapp.model.OrganizationSection;
 import com.urise.webapp.model.Section;
 
 import java.io.Reader;
@@ -9,8 +11,10 @@ import java.io.Writer;
 import java.time.LocalDate;
 
 public class JsonParser {
-    private static Gson GSON = new GsonBuilder()
+    private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(Section.class, new JsonSectionAdapter())
+            .registerTypeAdapter(Organization.class, new JsonOrganizationAdapter())
+            .registerTypeAdapter(Organization.Period.class, new JsonPeriodAdapter())
             .registerTypeAdapter(LocalDate.class, new LocalDateJsonAdapter())
             .create();
 
@@ -21,5 +25,4 @@ public class JsonParser {
     public static <T> void write(T object, Writer writer) {
         GSON.toJson(object, writer);
     }
-
 }

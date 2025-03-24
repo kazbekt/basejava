@@ -14,8 +14,8 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 public abstract class AbstractStorageTest {
-    //protected static final File STORAGE_DIR = new File("C:\\Users\\LOVE\\IdeaProjects\\basejava\\testStorage");
-    protected static final File STORAGE_DIR = new File("C:\\Users\\tedee\\IdeaProjects\\basejava\\basejava\\testStorage");
+    protected static final File STORAGE_DIR = new File("C:\\Users\\LOVE\\IdeaProjects\\basejava\\testStorage");
+    //protected static final File STORAGE_DIR = new File("C:\\Users\\tedee\\IdeaProjects\\basejava\\basejava\\testStorage");
 
     private static final String UUID_0 = "uuid0";
     private static final String RESUME_0 = "Name0";
@@ -87,7 +87,7 @@ public abstract class AbstractStorageTest {
     @Test
     public void save() {
         storage.save(r0);
-        assertGet(new Resume(UUID_0, RESUME_0));
+        assertGet(ResumeTestData.filledResume(UUID_0, RESUME_0));
         assertSize(4);
     }
 
@@ -100,9 +100,9 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void get() {
-        Resume T1 = new Resume(UUID_1, RESUME_1);
-        Resume T2 = new Resume(UUID_2, RESUME_2);
-        Resume T3 = new Resume(UUID_3, RESUME_3);
+        Resume T1 = ResumeTestData.filledResume(UUID_1, RESUME_1);
+        Resume T2 = ResumeTestData.filledResume(UUID_2, RESUME_2);
+        Resume T3 = ResumeTestData.filledResume(UUID_3, RESUME_3);
 
 
         assertGet(T1);
