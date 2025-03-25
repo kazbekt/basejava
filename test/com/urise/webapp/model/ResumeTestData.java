@@ -3,10 +3,11 @@ package com.urise.webapp.model;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class ResumeTestData {
 
-//    protected final Resume resume = new Resume(UUID, FULLNAME);
+    //    protected final Resume resume = new Resume(UUID, FULLNAME);
     private static final String UUID = "uuid";
     private static final String FULLNAME = "Григорий Кислин";
     private static final String PHONE = "+7(921) 855-0482";
@@ -43,7 +44,6 @@ public class ResumeTestData {
     public static final LocalDate EDUCATION1_INTERVAL_END_DATE = LocalDate.of(2025, 05, 1);
 
 
-
     public static Resume filledResume(String uuid, String fullname) {
         Resume resume = new Resume(uuid, fullname);
         resume.addContact(Resume.ContactType.PHONE, PHONE);
@@ -68,32 +68,43 @@ public class ResumeTestData {
                 new ArrayList<>(Arrays.asList(QUALIFICATION1, QUALIFICATION2)));
         resume.addSection(SectionType.QUALIFICATIONS, qualifications);
 
-        Section experience = new OrganizationSection(
-                new ArrayList<>(){{
-                    add(new Organization(WORKPLACE1_NAME, WORKPLACE1_WEBSITE){{
-                        addPeriod(new Period(
-                                WORKPLACE1_INTERVAL_START_DATE,
-                                WORKPLACE1_INTERVAL_END_DATE,
-                                WORKPLACE1_INTERVAL_NAME,
-                                WORKPLACE1_INTERVAL_DESCRIPTION
-                        ));
-                    }});
-                }}
+        Organization.Period period = new Organization.Period(
+                WORKPLACE1_INTERVAL_START_DATE,
+                WORKPLACE1_INTERVAL_END_DATE,
+                WORKPLACE1_INTERVAL_NAME,
+                WORKPLACE1_INTERVAL_DESCRIPTION
         );
+
+        Organization organization = new Organization(
+                WORKPLACE1_NAME,
+                WORKPLACE1_WEBSITE,
+                period
+        );
+
+        List<Organization> organizations = new ArrayList<>();
+        organizations.add(organization);
+
+        Section experience = new OrganizationSection(organizations);
         resume.addSection(SectionType.EXPERIENCE, experience);
 
-        Section education = new OrganizationSection(new ArrayList<>(){{
-            add(new Organization(EDUCATION1_NAME, EDUCATION1_WEBSITE){{
-                addPeriod(new Period(
+        Organization.Period period1 = new Organization.Period(
+                EDUCATION1_INTERVAL_START_DATE,
+                EDUCATION1_INTERVAL_END_DATE,
+                EDUCATION1_INTERVAL_NAME,
+                ""
+        );
 
-                        EDUCATION1_INTERVAL_START_DATE,
-                        EDUCATION1_INTERVAL_END_DATE,
-                        EDUCATION1_INTERVAL_NAME,
-                        ""
-                ));
-            }});
-        }});
-        resume.addSection(SectionType.EDUCATION,education);
+        Organization organization1 = new Organization(
+                EDUCATION1_NAME,
+                EDUCATION1_WEBSITE,
+                period1
+        );
+
+        List<Organization> educationList = new ArrayList<>();
+        educationList.add(organization1);
+
+        Section education = new OrganizationSection(educationList);
+        resume.addSection(SectionType.EDUCATION, education);
 
         return resume;
     }
@@ -104,6 +115,4 @@ public class ResumeTestData {
         System.out.println(resume);
 
     }
-
-
 }

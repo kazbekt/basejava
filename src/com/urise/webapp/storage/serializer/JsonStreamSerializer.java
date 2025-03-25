@@ -21,6 +21,5 @@ public class JsonStreamSerializer implements StreamSerializer {
             return JsonParser.read(reader, Resume.class);
         }
     }
-
 }
 

@@ -1,62 +1,33 @@
 package com.urise.webapp.util;
 
 import com.google.gson.*;
-import com.urise.webapp.model.Section;
-
 import java.lang.reflect.Type;
 
-public class JsonSectionAdapter implements JsonSerializer<Section>, JsonDeserializer<Section> {
+public class JsonSectionAdapter<T> implements JsonSerializer<T>, JsonDeserializer<T> {
     private static final String CLASSNAME = "CLASSNAME";
     private static final String INSTANCE = "INSTANCE";
 
     @Override
-    public JsonElement serialize(Section section, Type type, JsonSerializationContext context) {
-        if (section == null) {
-            return JsonNull.INSTANCE;
-        }
-
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty(CLASSNAME, section.getClass().getName());
-        jsonObject.add(INSTANCE, context.serialize(section));
-        return jsonObject;
-    }
-
-    @Override
-    public Section deserialize(JsonElement json, Type type, JsonDeserializationContext context)
-            throws JsonParseException {
-
-        if (json == null || json.isJsonNull()) {
-            return null;
-        }
-
-        if (!json.isJsonObject()) {
-            throw new JsonParseException("Expected JSON object, got: " + json);
-        }
-
+    public T deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = json.getAsJsonObject();
-
-        if (!jsonObject.has(CLASSNAME)) {
-            throw new JsonParseException("JSON must contain '" + CLASSNAME + "' field");
-        }
-
-        String className = jsonObject.get(CLASSNAME).getAsString();
-
-        if (!jsonObject.has(INSTANCE)) {
-            throw new JsonParseException("JSON must contain '" + INSTANCE + "' field");
-        }
-
-        JsonElement instanceElement = jsonObject.get(INSTANCE);
+        JsonPrimitive prim = (JsonPrimitive) jsonObject.get(CLASSNAME);
+        String className = prim.getAsString();
 
         try {
-            Class<?> clazz = Class.forName(className);
-
-            if (!Section.class.isAssignableFrom(clazz)) {
-                throw new JsonParseException("Class " + className + " is not a subtype of Section");
-            }
-
-            return context.deserialize(instanceElement, clazz);
+            Class clazz = Class.forName(className);
+            return context.deserialize(jsonObject.get(INSTANCE), clazz);
         } catch (ClassNotFoundException e) {
-            throw new JsonParseException("Class not found: " + className, e);
+            throw new JsonParseException(e.getMessage());
         }
+    }
+
+
+    @Override
+    public JsonElement serialize(T section, Type type, JsonSerializationContext context) {
+        JsonObject retValue = new JsonObject();
+        retValue.addProperty(CLASSNAME, section.getClass().getName());
+        JsonElement elem = context.serialize(section);
+        retValue.add(INSTANCE, elem);
+        return retValue;
     }
 }

@@ -32,8 +32,6 @@ public abstract class AbstractStorageTest {
     public static final String DUMMY = "dummy";
 
 
-
-
     private static final Resume r0 = ResumeTestData.filledResume(UUID_0, RESUME_0);
     private static final Resume r1 = ResumeTestData.filledResume(UUID_1, RESUME_1);
     private static final Resume r2 = ResumeTestData.filledResume(UUID_2, RESUME_2);
@@ -72,10 +70,10 @@ public abstract class AbstractStorageTest {
 
     @Test
     public void update() {
-            Resume newResume = new Resume(UUID_1, "New Name");
-            storage.update(newResume);
-            assertEquals(newResume, storage.get(UUID_1));
-        }
+        Resume newResume = new Resume(UUID_1, "New Name");
+        storage.update(newResume);
+        assertEquals(newResume, storage.get(UUID_1));
+    }
 
     @Test
     public void getAllSorted() {

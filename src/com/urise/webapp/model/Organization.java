@@ -20,13 +20,17 @@ import static com.urise.webapp.util.DateUtil.of;
 public class Organization implements Serializable {
     private static final long serialVersionUID = 1L;
     private Link homePage;
-    private List<Period> periods;
+    private List<Period> periods = new ArrayList<>();
 
     public Organization(){}
 
-    public Organization(String name, String url) {
-        this.homePage = new Link(name, url);
-        this.periods = new ArrayList<>();
+    public Organization(String name, String url, Period...periods){
+        this(new Link(name, url), Arrays.asList(periods));
+    }
+
+    public Organization(Link homePage, List<Period> periods) {
+        this.homePage = homePage;
+        this.periods = periods;
     }
 
     public Link getHomePage() {
@@ -35,11 +39,6 @@ public class Organization implements Serializable {
 
     public List<Period> getPeriods() {
         return periods;
-    }
-
-    public Organization(String name, String url, Period... periods) {
-        this(name, url);
-        this.periods.addAll(Arrays.asList(periods));
     }
 
     public void addPeriod(Period period) {
