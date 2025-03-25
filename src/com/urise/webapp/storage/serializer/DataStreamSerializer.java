@@ -17,39 +17,42 @@ public class DataStreamSerializer implements StreamSerializer {
         try (DataOutputStream dos = new DataOutputStream(os)) {
             dos.writeUTF(r.getUuid());
             dos.writeUTF(r.getFullName());
-            Map<ContactType, String> contacts = r.getContacts();
-            dos.writeInt(contacts.size());
-            for (Map.Entry<ContactType, String> entry : contacts.entrySet()) {
+
+            dos.writeInt(r.getContacts().size());
+            for (Map.Entry<ContactType, String> entry : r.getContacts().entrySet()) {
                 dos.writeUTF(entry.getKey().name());
                 dos.writeUTF(entry.getValue());
             }
-            Map<SectionType, Section> sections = r.getSections();
-            dos.writeInt(sections.size());
-            for (Map.Entry<SectionType, Section> entry : sections.entrySet()) {
-                String sectionType = entry.getKey().name();
-                dos.writeUTF(sectionType);
+
+            dos.writeInt(r.getSections().size());
+            for (Map.Entry<SectionType, Section> entry : r.getSections().entrySet()) {
+                SectionType type = entry.getKey();
+                dos.writeUTF(type.name());
                 Section section = entry.getValue();
-                if (section instanceof TextSection) {
-                    dos.writeUTF(((TextSection) section).getContent());
-                } else if (section instanceof ListSection) {
-                    List<String> list = ((ListSection) section).getItems();
-                    dos.writeInt(list.size());
-                    for (String s : list) {
-                        dos.writeUTF(s);
+
+                switch (type) {
+                    case OBJECTIVE, PERSONAL -> dos.writeUTF(((TextSection) section).getContent());
+                    case ACHIEVEMENT, QUALIFICATIONS -> {
+                        List<String> list = ((ListSection) section).getItems();
+                        dos.writeInt(list.size());
+                        for (String s : list) {
+                            dos.writeUTF(s);
+                        }
                     }
-                } else if (section instanceof OrganizationSection) {
-                    List<Organization> list = ((OrganizationSection) section).getOrganizations();
-                    dos.writeInt(list.size());
-                    for (int i = 0; i < list.size(); i++) {
-                        dos.writeUTF(list.get(i).getHomePage().getName());
-                        dos.writeUTF(list.get(i).getHomePage().getUrl());
-                        List<Organization.Period> periods = list.get(i).getPeriods();
-                        dos.writeInt(periods.size());
-                        for (int j = 0; j < periods.size(); j++) {
-                            dos.writeUTF(periods.get(j).getStartDate().toString());
-                            dos.writeUTF(periods.get(j).getEndDate().toString());
-                            dos.writeUTF(periods.get(j).getTitle());
-                            dos.writeUTF(periods.get(j).getDescription());
+                    case EXPERIENCE, EDUCATION -> {
+                        List<Organization> list = ((OrganizationSection) section).getOrganizations();
+                        dos.writeInt(list.size());
+                        for (Organization org : list) {
+                            dos.writeUTF(org.getHomePage().getName());
+                            dos.writeUTF(org.getHomePage().getUrl());
+                            List<Organization.Period> periods = org.getPeriods();
+                            dos.writeInt(periods.size());
+                            for (Organization.Period per : periods) {
+                                dos.writeUTF(per.getStartDate().toString());
+                                dos.writeUTF(per.getEndDate().toString());
+                                dos.writeUTF(per.getTitle());
+                                dos.writeUTF(per.getDescription());
+                            }
                         }
                     }
                 }
@@ -59,47 +62,48 @@ public class DataStreamSerializer implements StreamSerializer {
 
     @Override
     public Resume doRead(InputStream is) throws IOException {
-        System.out.println("НАЧАЛО ЧТЕНИЯ!!!");
         try (DataInputStream dis = new DataInputStream(is)) {
-            String uuid = dis.readUTF();
-            String fullName = dis.readUTF();
-            Resume resume = new Resume(uuid, fullName);
+            Resume resume = new Resume(dis.readUTF(), dis.readUTF());
+
             int size = dis.readInt();
             for (int i = 0; i < size; i++) {
                 resume.addContact(Resume.ContactType.valueOf(dis.readUTF()), dis.readUTF());
             }
-            // TODO implements sections
+
             int sections = dis.readInt();
             for (int i = 0; i < sections; i++) {
                 SectionType type = SectionType.valueOf(dis.readUTF());
-                if (type == SectionType.OBJECTIVE || type == SectionType.PERSONAL) {
-                    resume.addSection(type, new TextSection(dis.readUTF()));
-                } else if (type == SectionType.ACHIEVEMENT || type == SectionType.QUALIFICATIONS) {
-                    int itemsSize = dis.readInt();
-                    List<String> items = new ArrayList<>(itemsSize);
-                    for (int j = 0; j < itemsSize; j++) {
-                        items.add(dis.readUTF());
-                    }
-                    resume.addSection(type, new ListSection(items));
-                } else if (type == SectionType.EXPERIENCE || type == SectionType.EDUCATION) {
-                    int organisationsSize = dis.readInt();
-                    List<Organization> organizations = new ArrayList<>();
-                    for (int j = 0; j < organisationsSize; j++) {
-                        Organization organization = new Organization(dis.readUTF(), dis.readUTF());
-                        int periods = dis.readInt();
-                        for (int k = 0; k < periods; k++) {
-                            organization.addPeriod(new Organization.Period(LocalDate.parse(dis.readUTF())
-                                    , LocalDate.parse(dis.readUTF()), dis.readUTF(), dis.readUTF()));
+
+                switch (type) {
+
+                    case OBJECTIVE, PERSONAL -> resume.addSection(type, new TextSection(dis.readUTF()));
+                    case ACHIEVEMENT, QUALIFICATIONS -> {
+                        int itemsSize = dis.readInt();
+                        List<String> items = new ArrayList<>(itemsSize);
+                        for (int j = 0; j < itemsSize; j++) {
+                            items.add(dis.readUTF());
                         }
-                        organizations.add(organization);
+                        resume.addSection(type, new ListSection(items));
                     }
-                    resume.addSection(type, new OrganizationSection(organizations));
+                    case EXPERIENCE, EDUCATION -> {
+                        int orgsSize = dis.readInt();
+                        List<Organization> organizations = new ArrayList<>();
+                        for (int j = 0; j < orgsSize; j++) {
+                            Link link = new Link(dis.readUTF(), dis.readUTF());
+                            List<Organization.Period> periods = new ArrayList<>();
+                            int periodsSize = dis.readInt();
+                            for (int k = 0; k < periodsSize; k++) {
+                                periods.add(new Organization.Period(LocalDate.parse(dis.readUTF()),
+                                        LocalDate.parse(dis.readUTF()),
+                                        dis.readUTF(), dis.readUTF()));
+                            }
+                            organizations.add(new Organization(link, periods));
+                        }
+                        resume.addSection(type, new OrganizationSection(organizations));
+                    }
                 }
             }
             return resume;
         }
     }
 }
-
-
-
