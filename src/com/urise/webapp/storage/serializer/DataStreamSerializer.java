@@ -11,6 +11,27 @@ import java.util.List;
 import java.util.Map;
 
 public class DataStreamSerializer implements StreamSerializer {
+    @FunctionalInterface
+    private interface ConsumerExMap<K, V> {
+        void accept(K key, V val) throws IOException;
+    }
+
+    @FunctionalInterface
+    private interface ConsumerExList<T> {
+        void accept(T t) throws IOException;
+    }
+
+    private <K, V> void writeMapWithException(Map<K, V> map, ConsumerExMap<K, V> consumer) throws IOException {
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            consumer.accept(entry.getKey(), entry.getValue());
+        }
+    }
+
+    private <T> void writeListWithException(List<T> list, ConsumerExList<T> consumer) throws IOException {
+        for (T t : list) {
+            consumer.accept(t);
+        }
+    }
 
     @Override
     public void doWrite(Resume r, OutputStream os) throws IOException {
@@ -19,44 +40,40 @@ public class DataStreamSerializer implements StreamSerializer {
             dos.writeUTF(r.getFullName());
 
             dos.writeInt(r.getContacts().size());
-            for (Map.Entry<ContactType, String> entry : r.getContacts().entrySet()) {
-                dos.writeUTF(entry.getKey().name());
-                dos.writeUTF(entry.getValue());
-            }
+            writeMapWithException(r.getContacts(), (ContactType key, String val) -> {
+                dos.writeUTF(key.name());
+                dos.writeUTF(val);
+            });
 
             dos.writeInt(r.getSections().size());
-            for (Map.Entry<SectionType, Section> entry : r.getSections().entrySet()) {
-                SectionType type = entry.getKey();
+            writeMapWithException(r.getSections(), (SectionType type, Section section) -> {
                 dos.writeUTF(type.name());
-                Section section = entry.getValue();
-
                 switch (type) {
                     case OBJECTIVE, PERSONAL -> dos.writeUTF(((TextSection) section).getContent());
                     case ACHIEVEMENT, QUALIFICATIONS -> {
                         List<String> list = ((ListSection) section).getItems();
                         dos.writeInt(list.size());
-                        for (String s : list) {
-                            dos.writeUTF(s);
-                        }
+                        writeListWithException(list, dos::writeUTF);
                     }
                     case EXPERIENCE, EDUCATION -> {
                         List<Organization> list = ((OrganizationSection) section).getOrganizations();
                         dos.writeInt(list.size());
-                        for (Organization org : list) {
+                        writeListWithException(list, org -> {
                             dos.writeUTF(org.getHomePage().getName());
                             dos.writeUTF(org.getHomePage().getUrl());
                             List<Organization.Period> periods = org.getPeriods();
                             dos.writeInt(periods.size());
-                            for (Organization.Period per : periods) {
-                                dos.writeUTF(per.getStartDate().toString());
-                                dos.writeUTF(per.getEndDate().toString());
-                                dos.writeUTF(per.getTitle());
-                                dos.writeUTF(per.getDescription());
-                            }
-                        }
+                            writeListWithException(periods, per -> {
+                                        dos.writeUTF(per.getStartDate().toString());
+                                        dos.writeUTF(per.getEndDate().toString());
+                                        dos.writeUTF(per.getTitle());
+                                        dos.writeUTF(per.getDescription());
+                                    }
+                            );
+                        });
                     }
                 }
-            }
+            });
         }
     }
 
