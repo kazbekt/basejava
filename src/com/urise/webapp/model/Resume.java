@@ -67,10 +67,12 @@ public class Resume implements Comparable<Resume>, Serializable {
     }
 
     public void addSection(SectionType type, Section section) {
-        Objects.requireNonNull(type, "Contact type must not be null");
-        Objects.requireNonNull(section, "Contact value must not be null");
+        Objects.requireNonNull(type, "Section type must not be null");
+        Objects.requireNonNull(section, "Section value must not be null");
         sections.put(type, section);
     }
+
+
 
     @Override
     public boolean equals(Object o) {

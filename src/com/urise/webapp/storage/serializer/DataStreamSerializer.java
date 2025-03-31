@@ -1,12 +1,10 @@
 package com.urise.webapp.storage.serializer;
-
 import com.urise.webapp.model.*;
 
 import java.io.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.function.Consumer;
 
 public class DataStreamSerializer implements StreamSerializer {
 
@@ -15,7 +13,8 @@ public class DataStreamSerializer implements StreamSerializer {
         void accept(T t) throws IOException;
     }
 
-    private <T> void writeWithException(Collection<T> c, ConsumerEx<T> consumer) throws IOException {
+    private <T> void writeWithException(DataOutputStream dos, Collection<T> c, ConsumerEx<T> consumer) throws IOException {
+        dos.writeInt(c.size());
         for (T t : c) {
             consumer.accept(t);
         }
@@ -27,31 +26,26 @@ public class DataStreamSerializer implements StreamSerializer {
             dos.writeUTF(r.getUuid());
             dos.writeUTF(r.getFullName());
 
-            dos.writeInt(r.getContacts().size());
-            writeWithException(r.getContacts().entrySet(), entry -> {
+            writeWithException(dos, r.getContacts().entrySet(), entry -> {
                 dos.writeUTF(entry.getKey().name());
                 dos.writeUTF(entry.getValue());
             });
 
-            dos.writeInt(r.getSections().size());
-            writeWithException(r.getSections().entrySet(), entry -> {
+            writeWithException(dos, r.getSections().entrySet(), entry -> {
                 dos.writeUTF(entry.getKey().name());
                 switch (entry.getKey()) {
                     case OBJECTIVE, PERSONAL -> dos.writeUTF(((TextSection) entry.getValue()).getContent());
                     case ACHIEVEMENT, QUALIFICATIONS -> {
                         List<String> list = ((ListSection) entry.getValue()).getItems();
-                        dos.writeInt(list.size());
-                        writeWithException(list, dos::writeUTF);
+                        writeWithException(dos, list, dos::writeUTF);
                     }
                     case EXPERIENCE, EDUCATION -> {
                         List<Organization> list = ((OrganizationSection) entry.getValue()).getOrganizations();
-                        dos.writeInt(list.size());
-                        writeWithException(list, org -> {
+                        writeWithException(dos, list, org -> {
                             dos.writeUTF(org.getHomePage().getName());
                             dos.writeUTF(org.getHomePage().getUrl());
                             List<Organization.Period> periods = org.getPeriods();
-                            dos.writeInt(periods.size());
-                            writeWithException(periods, per -> {
+                            writeWithException(dos, periods, per -> {
                                         dos.writeUTF(per.getStartDate().toString());
                                         dos.writeUTF(per.getEndDate().toString());
                                         dos.writeUTF(per.getTitle());
@@ -65,49 +59,67 @@ public class DataStreamSerializer implements StreamSerializer {
         }
     }
 
+
+    @FunctionalInterface
+    private interface SupplierEx<T> {
+        T read(DataInputStream dis) throws IOException;
+    }
+
+    private <T> void readCollection(
+            DataInputStream dis,
+            SupplierEx<T> reader,
+            Consumer<T> adder
+    ) throws IOException {
+        int size = dis.readInt();
+        for (int i = 0; i < size; i++) {
+            adder.accept(reader.read(dis));
+        }
+    }
+
     @Override
     public Resume doRead(InputStream is) throws IOException {
         try (DataInputStream dis = new DataInputStream(is)) {
             Resume resume = new Resume(dis.readUTF(), dis.readUTF());
 
-            int size = dis.readInt();
-            for (int i = 0; i < size; i++) {
-                resume.addContact(Resume.ContactType.valueOf(dis.readUTF()), dis.readUTF());
-            }
+            readCollection(dis, entry -> new AbstractMap.SimpleEntry<>(
+                    Resume.ContactType.valueOf(dis.readUTF()),
+                    dis.readUTF()), entry -> resume.addContact(entry.getKey(), entry.getValue()));
 
-            int sections = dis.readInt();
-            for (int i = 0; i < sections; i++) {
-                SectionType type = SectionType.valueOf(dis.readUTF());
+            readCollection(dis,
+                    s -> {
+                        SectionType type = SectionType.valueOf(s.readUTF());
+                        Section section = switch (type) {
 
-                switch (type) {
+                            case OBJECTIVE, PERSONAL -> new TextSection(dis.readUTF());
 
-                    case OBJECTIVE, PERSONAL -> resume.addSection(type, new TextSection(dis.readUTF()));
-                    case ACHIEVEMENT, QUALIFICATIONS -> {
-                        int itemsSize = dis.readInt();
-                        List<String> items = new ArrayList<>(itemsSize);
-                        for (int j = 0; j < itemsSize; j++) {
-                            items.add(dis.readUTF());
-                        }
-                        resume.addSection(type, new ListSection(items));
-                    }
-                    case EXPERIENCE, EDUCATION -> {
-                        int orgsSize = dis.readInt();
-                        List<Organization> organizations = new ArrayList<>();
-                        for (int j = 0; j < orgsSize; j++) {
-                            Link link = new Link(dis.readUTF(), dis.readUTF());
-                            List<Organization.Period> periods = new ArrayList<>();
-                            int periodsSize = dis.readInt();
-                            for (int k = 0; k < periodsSize; k++) {
-                                periods.add(new Organization.Period(LocalDate.parse(dis.readUTF()),
-                                        LocalDate.parse(dis.readUTF()),
-                                        dis.readUTF(), dis.readUTF()));
+                            case ACHIEVEMENT, QUALIFICATIONS -> {
+                                List<String> items = new ArrayList<>();
+                                readCollection(dis, item -> dis.readUTF(),
+                                        items::add);
+                                yield new ListSection(items);
                             }
-                            organizations.add(new Organization(link, periods));
-                        }
-                        resume.addSection(type, new OrganizationSection(organizations));
-                    }
-                }
-            }
+
+                            case EXPERIENCE, EDUCATION -> {
+                                List<Organization> organizations = new ArrayList<>();
+                                readCollection(dis, organization -> {
+                                    Link link = new Link(dis.readUTF(), dis.readUTF());
+                                    List<Organization.Period> periods = new ArrayList<>();
+                                    readCollection(dis,
+                                            period -> new Organization.Period(LocalDate.parse(dis.readUTF()),
+                                                    LocalDate.parse(dis.readUTF()), dis.readUTF(), dis.readUTF()),
+                                            periods::add);
+
+                                    return new Organization(link, periods);
+                                }, organizations::add);
+
+                                yield new OrganizationSection(organizations);
+                            }
+                        };
+                        return new AbstractMap.SimpleEntry<>(type, section);
+                    },
+                    section -> resume.addSection(section.getKey(), section.getValue())
+            );
+
             return resume;
         }
     }
