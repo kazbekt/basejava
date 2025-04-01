@@ -1,10 +1,10 @@
 package com.urise.webapp.storage.serializer;
+
 import com.urise.webapp.model.*;
 
 import java.io.*;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.function.Consumer;
 
 public class DataStreamSerializer implements StreamSerializer {
 
@@ -59,20 +59,15 @@ public class DataStreamSerializer implements StreamSerializer {
         }
     }
 
-
     @FunctionalInterface
-    private interface SupplierEx<T> {
-        T read(DataInputStream dis) throws IOException;
+    private interface CustomInterface {
+        void read() throws IOException;
     }
 
-    private <T> void readCollection(
-            DataInputStream dis,
-            SupplierEx<T> reader,
-            Consumer<T> adder
-    ) throws IOException {
+    private void readWithException(DataInputStream dis, CustomInterface reader) throws IOException {
         int size = dis.readInt();
         for (int i = 0; i < size; i++) {
-            adder.accept(reader.read(dis));
+            reader.read();
         }
     }
 
@@ -81,45 +76,34 @@ public class DataStreamSerializer implements StreamSerializer {
         try (DataInputStream dis = new DataInputStream(is)) {
             Resume resume = new Resume(dis.readUTF(), dis.readUTF());
 
-            readCollection(dis, entry -> new AbstractMap.SimpleEntry<>(
-                    Resume.ContactType.valueOf(dis.readUTF()),
-                    dis.readUTF()), entry -> resume.addContact(entry.getKey(), entry.getValue()));
+            readWithException(dis,
+                    () -> resume.addContact(Resume.ContactType.valueOf(dis.readUTF()), dis.readUTF()));
 
-            readCollection(dis,
-                    s -> {
-                        SectionType type = SectionType.valueOf(s.readUTF());
-                        Section section = switch (type) {
+            readWithException(dis,
+                    () -> {
+                        SectionType type = SectionType.valueOf(dis.readUTF());
 
-                            case OBJECTIVE, PERSONAL -> new TextSection(dis.readUTF());
-
+                        switch (type) {
+                            case OBJECTIVE, PERSONAL -> resume.addSection(type, new TextSection(dis.readUTF()));
                             case ACHIEVEMENT, QUALIFICATIONS -> {
                                 List<String> items = new ArrayList<>();
-                                readCollection(dis, item -> dis.readUTF(),
-                                        items::add);
-                                yield new ListSection(items);
+                                readWithException(dis, () -> items.add(dis.readUTF()));
+                                resume.addSection(type, new ListSection(items));
                             }
-
                             case EXPERIENCE, EDUCATION -> {
                                 List<Organization> organizations = new ArrayList<>();
-                                readCollection(dis, organization -> {
+                                readWithException(dis, () -> {
                                     Link link = new Link(dis.readUTF(), dis.readUTF());
                                     List<Organization.Period> periods = new ArrayList<>();
-                                    readCollection(dis,
-                                            period -> new Organization.Period(LocalDate.parse(dis.readUTF()),
-                                                    LocalDate.parse(dis.readUTF()), dis.readUTF(), dis.readUTF()),
-                                            periods::add);
-
-                                    return new Organization(link, periods);
-                                }, organizations::add);
-
-                                yield new OrganizationSection(organizations);
+                                    readWithException(dis, () -> periods.add(new Organization.Period(LocalDate.parse(dis.readUTF()),
+                                            LocalDate.parse(dis.readUTF()),
+                                            dis.readUTF(), dis.readUTF())));
+                                    organizations.add(new Organization(link, periods));
+                                });
+                                resume.addSection(type, new OrganizationSection(organizations));
                             }
-                        };
-                        return new AbstractMap.SimpleEntry<>(type, section);
-                    },
-                    section -> resume.addSection(section.getKey(), section.getValue())
-            );
-
+                        }
+                    });
             return resume;
         }
     }
