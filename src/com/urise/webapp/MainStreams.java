@@ -40,6 +40,5 @@ public class MainStreams {
         List<Integer> list = createList();
         System.out.println(list);
         System.out.println(oddOrEven(list));
-
     }
 }
