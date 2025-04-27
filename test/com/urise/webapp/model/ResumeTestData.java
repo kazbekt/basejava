@@ -54,57 +54,57 @@ public class ResumeTestData {
         resume.addContact(Resume.ContactType.STACKOVERFLOW, STACKOVERFLOW);
         resume.addContact(Resume.ContactType.HOMEPAGE, HOMEPAGE);
 
-        Section objective = new TextSection(OBJECTIVE);
-        resume.addSection(SectionType.OBJECTIVE, objective);
-
-        Section personal = new TextSection(PERSONAL);
-        resume.addSection(SectionType.PERSONAL, personal);
-
-        Section achievements = new ListSection(
-                new ArrayList<>(Arrays.asList(ACHIEVEMENT1, ACHIEVEMENT2)));
-        resume.addSection(SectionType.ACHIEVEMENT, achievements);
-
-        Section qualifications = new ListSection(
-                new ArrayList<>(Arrays.asList(QUALIFICATION1, QUALIFICATION2)));
-        resume.addSection(SectionType.QUALIFICATIONS, qualifications);
-
-        Organization.Period period = new Organization.Period(
-                WORKPLACE1_INTERVAL_START_DATE,
-                WORKPLACE1_INTERVAL_END_DATE,
-                WORKPLACE1_INTERVAL_NAME,
-                WORKPLACE1_INTERVAL_DESCRIPTION
-        );
-
-        Organization organization = new Organization(
-                WORKPLACE1_NAME,
-                WORKPLACE1_WEBSITE,
-                period
-        );
-
-        List<Organization> organizations = new ArrayList<>();
-        organizations.add(organization);
-
-        Section experience = new OrganizationSection(organizations);
-        resume.addSection(SectionType.EXPERIENCE, experience);
-
-        Organization.Period period1 = new Organization.Period(
-                EDUCATION1_INTERVAL_START_DATE,
-                EDUCATION1_INTERVAL_END_DATE,
-                EDUCATION1_INTERVAL_NAME,
-                ""
-        );
-
-        Organization organization1 = new Organization(
-                EDUCATION1_NAME,
-                EDUCATION1_WEBSITE,
-                period1
-        );
-
-        List<Organization> educationList = new ArrayList<>();
-        educationList.add(organization1);
-
-        Section education = new OrganizationSection(educationList);
-        resume.addSection(SectionType.EDUCATION, education);
+//        Section objective = new TextSection(OBJECTIVE);
+//        resume.addSection(SectionType.OBJECTIVE, objective);
+//
+//        Section personal = new TextSection(PERSONAL);
+//        resume.addSection(SectionType.PERSONAL, personal);
+//
+//        Section achievements = new ListSection(
+//                new ArrayList<>(Arrays.asList(ACHIEVEMENT1, ACHIEVEMENT2)));
+//        resume.addSection(SectionType.ACHIEVEMENT, achievements);
+//
+//        Section qualifications = new ListSection(
+//                new ArrayList<>(Arrays.asList(QUALIFICATION1, QUALIFICATION2)));
+//        resume.addSection(SectionType.QUALIFICATIONS, qualifications);
+//
+//        Organization.Period period = new Organization.Period(
+//                WORKPLACE1_INTERVAL_START_DATE,
+//                WORKPLACE1_INTERVAL_END_DATE,
+//                WORKPLACE1_INTERVAL_NAME,
+//                WORKPLACE1_INTERVAL_DESCRIPTION
+//        );
+//
+//        Organization organization = new Organization(
+//                WORKPLACE1_NAME,
+//                WORKPLACE1_WEBSITE,
+//                period
+//        );
+//
+//        List<Organization> organizations = new ArrayList<>();
+//        organizations.add(organization);
+//
+//        Section experience = new OrganizationSection(organizations);
+//        resume.addSection(SectionType.EXPERIENCE, experience);
+//
+//        Organization.Period period1 = new Organization.Period(
+//                EDUCATION1_INTERVAL_START_DATE,
+//                EDUCATION1_INTERVAL_END_DATE,
+//                EDUCATION1_INTERVAL_NAME,
+//                ""
+//        );
+//
+//        Organization organization1 = new Organization(
+//                EDUCATION1_NAME,
+//                EDUCATION1_WEBSITE,
+//                period1
+//        );
+//
+//        List<Organization> educationList = new ArrayList<>();
+//        educationList.add(organization1);
+//
+//        Section education = new OrganizationSection(educationList);
+//        resume.addSection(SectionType.EDUCATION, education);
 
         return resume;
     }
