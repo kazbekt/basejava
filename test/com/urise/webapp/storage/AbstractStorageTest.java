@@ -32,16 +32,10 @@ public abstract class AbstractStorageTest {
 
     public static final String DUMMY = "dummy";
 
-
     private static final Resume r0 = ResumeTestData.filledResume(UUID_0, RESUME_0);
     private static final Resume r1 = ResumeTestData.filledResume(UUID_1, RESUME_1);
     private static final Resume r2 = ResumeTestData.filledResume(UUID_2, RESUME_2);
     private static final Resume r3 = ResumeTestData.filledResume(UUID_3, RESUME_3);
-
-//    private static final Resume r0 = new Resume(UUID_0, RESUME_0);
-//    private static final Resume r1 = new Resume(UUID_1, RESUME_1);
-//    private static final Resume r2 = new Resume(UUID_2, RESUME_2);
-//    private static final Resume r3 = new Resume(UUID_3, RESUME_3);
 
     protected final Storage storage;
 
@@ -76,6 +70,13 @@ public abstract class AbstractStorageTest {
     @Test
     public void update() {
         Resume newResume = new Resume(UUID_1, "New Name");
+        newResume.addContact(Resume.ContactType.PHONE, "newPHONE");
+        newResume.addContact(Resume.ContactType.SKYPE, "newSKYPE");
+        newResume.addContact(Resume.ContactType.EMAIL, "newEMAIL");
+        newResume.addContact(Resume.ContactType.LINKEDIN, "newLINKEDIN");
+        newResume.addContact(Resume.ContactType.GITHUB, "newGITHUB");
+        newResume.addContact(Resume.ContactType.STACKOVERFLOW, "newSTACKOVERFLOW");
+        newResume.addContact(Resume.ContactType.HOMEPAGE, "newHOMEPAGE");
         storage.update(newResume);
         assertEquals(newResume, storage.get(UUID_1));
     }
@@ -91,7 +92,6 @@ public abstract class AbstractStorageTest {
     public void save() {
         storage.save(r0);
         assertGet(ResumeTestData.filledResume(UUID_0, RESUME_0));
-//        assertGet(new Resume(UUID_0, RESUME_0));
 
         assertSize(4);
     }
@@ -108,10 +108,6 @@ public abstract class AbstractStorageTest {
         Resume T1 = ResumeTestData.filledResume(UUID_1, RESUME_1);
         Resume T2 = ResumeTestData.filledResume(UUID_2, RESUME_2);
         Resume T3 = ResumeTestData.filledResume(UUID_3, RESUME_3);
-
-//        Resume T1 = new Resume(UUID_1, RESUME_1);
-//        Resume T2 = new Resume(UUID_2, RESUME_2);
-//        Resume T3 = new Resume(UUID_3, RESUME_3);
 
         assertGet(T1);
         assertGet(T2);
