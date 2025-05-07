@@ -4,6 +4,8 @@ import com.urise.webapp.Config;
 import com.urise.webapp.exception.NotExistStorageException;
 import com.urise.webapp.model.Resume;
 import com.urise.webapp.model.ResumeTestData;
+import com.urise.webapp.model.SectionType;
+import com.urise.webapp.model.TextSection;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -77,6 +79,7 @@ public abstract class AbstractStorageTest {
         newResume.addContact(Resume.ContactType.GITHUB, "newGITHUB");
         newResume.addContact(Resume.ContactType.STACKOVERFLOW, "newSTACKOVERFLOW");
         newResume.addContact(Resume.ContactType.HOMEPAGE, "newHOMEPAGE");
+        newResume.addSection(SectionType.OBJECTIVE, new TextSection("New Section"));
         storage.update(newResume);
         assertEquals(newResume, storage.get(UUID_1));
     }

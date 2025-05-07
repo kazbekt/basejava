@@ -54,11 +54,11 @@ public class ResumeTestData {
         resume.addContact(Resume.ContactType.STACKOVERFLOW, STACKOVERFLOW);
         resume.addContact(Resume.ContactType.HOMEPAGE, HOMEPAGE);
 
-//        Section objective = new TextSection(OBJECTIVE);
-//        resume.addSection(SectionType.OBJECTIVE, objective);
-//
-//        Section personal = new TextSection(PERSONAL);
-//        resume.addSection(SectionType.PERSONAL, personal);
+        Section objective = new TextSection(OBJECTIVE);
+        resume.addSection(SectionType.OBJECTIVE, objective);
+
+        Section personal = new TextSection(PERSONAL);
+        resume.addSection(SectionType.PERSONAL, personal);
 //
 //        Section achievements = new ListSection(
 //                new ArrayList<>(Arrays.asList(ACHIEVEMENT1, ACHIEVEMENT2)));

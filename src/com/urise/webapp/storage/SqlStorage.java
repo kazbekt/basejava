@@ -2,6 +2,9 @@ package com.urise.webapp.storage;
 
 import com.urise.webapp.exception.NotExistStorageException;
 import com.urise.webapp.model.Resume;
+import com.urise.webapp.model.Section;
+import com.urise.webapp.model.SectionType;
+import com.urise.webapp.model.TextSection;
 import com.urise.webapp.sql.SqlHelper;
 
 import java.sql.*;
@@ -26,6 +29,8 @@ public class SqlStorage implements Storage {
                 "    SELECT * FROM resume r " +
                 " LEFT JOIN contact c " +
                 "        ON r.uuid = c.resume_uuid " +
+                " LEFT JOIN text_section ts " +
+                "        ON r.uuid = ts_resume_uuid " +
                 "     WHERE r.uuid =? ", ps -> {
             ps.setString(1, uuid);
             ResultSet rs = ps.executeQuery();
@@ -35,6 +40,7 @@ public class SqlStorage implements Storage {
             Resume r = new Resume(uuid, rs.getString("full_name"));
             do {
                 addContact(rs, r);
+                addTextSection(rs, r);
             } while (rs.next());
 
             return r;
@@ -55,8 +61,13 @@ public class SqlStorage implements Storage {
                 ps.setString(1, r.getUuid());
                 ps.execute();
             }
+            try (PreparedStatement ps = conn.prepareStatement("DELETE FROM text_section  WHERE ts_resume_uuid = ?")) {
+                ps.setString(1, r.getUuid());
+                ps.execute();
+            }
 
             insertContact(r, conn);
+            insertTextSection(r, conn);
             return null;
         });
 
@@ -104,6 +115,7 @@ public class SqlStorage implements Storage {
                 ps.executeUpdate();
             }
             insertContact(r, conn);
+            insertTextSection(r, conn);
             return null;
         });
     }
@@ -137,6 +149,7 @@ public class SqlStorage implements Storage {
         return sqlHelper.execute("" +
                 "   SELECT * FROM resume r\n" +
                 "LEFT JOIN contact c ON r.uuid = c.resume_uuid\n" +
+                "LEFT JOIN text_section ts ON r.uuid = ts_resume_uuid\n" +
                 "ORDER BY full_name, uuid", ps -> {
             ResultSet rs = ps.executeQuery();
             Map<String, Resume> resumeMap = new LinkedHashMap<>();
@@ -147,6 +160,7 @@ public class SqlStorage implements Storage {
                     resumeMap.put(uuid, r);
                 }
                 addContact(rs, resumeMap.get(uuid));
+                addTextSection(rs, resumeMap.get(uuid));
             }
             return new ArrayList<>(resumeMap.values());
         });
@@ -172,9 +186,27 @@ public class SqlStorage implements Storage {
         }
     }
 
+    private static void insertTextSection(Resume r, Connection conn) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement("INSERT INTO text_section (ts_resume_uuid, ts_type, ts_value) VALUES (?, ?, ?)")) {
+            for (Map.Entry<SectionType, Section> entry : r.getSections().entrySet()) {
+                ps.setString(1, r.getUuid());
+                ps.setString(2, entry.getKey().name());
+                ps.setString(3, ((TextSection) (entry.getValue())).getContent());
+                ps.addBatch();
+            }
+            ps.executeBatch();
+        }
+    }
+
     private static void addContact(ResultSet rs, Resume r) throws SQLException {
         String value = rs.getString("value");
         Resume.ContactType type = Resume.ContactType.valueOf(rs.getString("type"));
         r.addContact(type, value);
+    }
+
+    private static void addTextSection(ResultSet rs, Resume r) throws SQLException {
+        String value = rs.getString("ts_value");
+        SectionType type = SectionType.valueOf(rs.getString("ts_type"));
+        r.addSection(type, new TextSection(value));
     }
 }
