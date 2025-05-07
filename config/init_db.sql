@@ -46,3 +46,22 @@ alter table text_section
 
 create index "text_section_ts_resume_uuid_ts.type_index"
     on text_section (ts_resume_uuid, "ts.type");
+
+create table list_section
+(
+    id             serial
+        constraint list_section_pk
+            primary key,
+    ls_type        text not null,
+    ls_value       text not null,
+    ls_resume_uuid char(36)
+        constraint list_section_resume_uuid_fk
+            references resume
+            on delete cascade
+);
+
+alter table list_section
+    owner to postgres;
+
+create index list_section_ls_resume_uuid_ls_type_index
+    on list_section (ls_resume_uuid, ls_type);

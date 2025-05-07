@@ -59,10 +59,10 @@ public class ResumeTestData {
 
         Section personal = new TextSection(PERSONAL);
         resume.addSection(SectionType.PERSONAL, personal);
-//
-//        Section achievements = new ListSection(
-//                new ArrayList<>(Arrays.asList(ACHIEVEMENT1, ACHIEVEMENT2)));
-//        resume.addSection(SectionType.ACHIEVEMENT, achievements);
+
+        Section achievements = new ListSection(
+                new ArrayList<>(Arrays.asList(ACHIEVEMENT1, ACHIEVEMENT2)));
+        resume.addSection(SectionType.ACHIEVEMENT, achievements);
 //
 //        Section qualifications = new ListSection(
 //                new ArrayList<>(Arrays.asList(QUALIFICATION1, QUALIFICATION2)));

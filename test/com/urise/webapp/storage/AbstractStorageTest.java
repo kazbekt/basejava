@@ -2,10 +2,7 @@ package com.urise.webapp.storage;
 
 import com.urise.webapp.Config;
 import com.urise.webapp.exception.NotExistStorageException;
-import com.urise.webapp.model.Resume;
-import com.urise.webapp.model.ResumeTestData;
-import com.urise.webapp.model.SectionType;
-import com.urise.webapp.model.TextSection;
+import com.urise.webapp.model.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -80,6 +77,7 @@ public abstract class AbstractStorageTest {
         newResume.addContact(Resume.ContactType.STACKOVERFLOW, "newSTACKOVERFLOW");
         newResume.addContact(Resume.ContactType.HOMEPAGE, "newHOMEPAGE");
         newResume.addSection(SectionType.OBJECTIVE, new TextSection("New Section"));
+        newResume.addSection(SectionType.ACHIEVEMENT, new ListSection("Achievement1", "Achievement2", "Achievement3", "Achievement4"));
         storage.update(newResume);
         assertEquals(newResume, storage.get(UUID_1));
     }
