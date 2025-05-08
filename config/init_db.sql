@@ -33,8 +33,8 @@ create table text_section
     id             serial
         constraint text_section_pk
             primary key,
-    "ts.type"      text     not null,
-    "ts.value"     text     not null,
+    ts_type        text     not null,
+    ts_value       text     not null,
     ts_resume_uuid char(36) not null
         constraint text_section_resume_uuid_fk
             references resume
@@ -44,8 +44,8 @@ create table text_section
 alter table text_section
     owner to postgres;
 
-create index "text_section_ts_resume_uuid_ts.type_index"
-    on text_section (ts_resume_uuid, "ts.type");
+create index idx_text_section_resume_type on text_section (ts_resume_uuid, ts_type);
+
 
 create table list_section
 (
@@ -54,7 +54,7 @@ create table list_section
             primary key,
     ls_type        text not null,
     ls_value       text not null,
-    ls_resume_uuid char(36)
+    ls_resume_uuid char(36) not null
         constraint list_section_resume_uuid_fk
             references resume
             on delete cascade
