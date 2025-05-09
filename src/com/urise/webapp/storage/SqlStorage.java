@@ -147,25 +147,61 @@ public class SqlStorage implements Storage {
 //        });
 //    }
 
+
+//    @Override
+//    public List<Resume> getAllSorted() {
+//        return sqlHelper.execute("" +
+//                "   SELECT * FROM resume r\n" +
+//                "LEFT JOIN contact c ON r.uuid = c.resume_uuid\n" +
+//                "LEFT JOIN text_section ts ON r.uuid = ts_resume_uuid\n" +
+//                "LEFT JOIN list_section ls ON r.uuid = ls_resume_uuid\n" +
+//                "ORDER BY full_name, uuid", ps -> {
+//            ResultSet rs = ps.executeQuery();
+//            Map<String, Resume> resumeMap = new LinkedHashMap<>();
+//            while (rs.next()) {
+//                String uuid = rs.getString("uuid");
+//                if (!resumeMap.containsKey(uuid)) {
+//                    Resume r = new Resume(uuid, rs.getString("full_name"));
+//                    resumeMap.put(uuid, r);
+//                }
+//                addContact(rs, resumeMap.get(uuid));
+//                addTextSection(rs, resumeMap.get(uuid));
+//                addListSection(rs, resumeMap.get(uuid));
+//            }
+//            return new ArrayList<>(resumeMap.values());
+//        });
+//    }
+
     @Override
     public List<Resume> getAllSorted() {
-        return sqlHelper.execute("" +
-                "   SELECT * FROM resume r\n" +
-                "LEFT JOIN contact c ON r.uuid = c.resume_uuid\n" +
-                "LEFT JOIN text_section ts ON r.uuid = ts_resume_uuid\n" +
-                "LEFT JOIN list_section ls ON r.uuid = ls_resume_uuid\n" +
-                "ORDER BY full_name, uuid", ps -> {
-            ResultSet rs = ps.executeQuery();
-            Map<String, Resume> resumeMap = new LinkedHashMap<>();
-            while (rs.next()) {
-                String uuid = rs.getString("uuid");
-                if (!resumeMap.containsKey(uuid)) {
-                    Resume r = new Resume(uuid, rs.getString("full_name"));
-                    resumeMap.put(uuid, r);
+        Map<String, Resume> resumeMap = new LinkedHashMap<>();
+        return sqlHelper.transactionalExecute(conn -> {
+            try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM resume\n" +
+                    "ORDER BY full_name, uuid" )) {
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    Resume r = new Resume(rs.getString("uuid"), rs.getString("full_name"));
+                    resumeMap.put(r.getUuid(), r);
                 }
-                addContact(rs, resumeMap.get(uuid));
-                addTextSection(rs, resumeMap.get(uuid));
-                addListSection(rs, resumeMap.get(uuid));
+            }
+            try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM contact")) {
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    addContact(rs, resumeMap.get((rs.getString("resume_uuid")).trim()));
+                }
+            }
+
+            try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM text_section")) {
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    addTextSection(rs, resumeMap.get((rs.getString("ts_resume_uuid")).trim()));
+                }
+            }
+            try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM list_section")) {
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    addListSection(rs, resumeMap.get((rs.getString("ls_resume_uuid")).trim()));
+                }
             }
             return new ArrayList<>(resumeMap.values());
         });
