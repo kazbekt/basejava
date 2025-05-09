@@ -28,40 +28,19 @@ alter table contact
 create unique index contact_uuid_type_index
     on contact (resume_uuid, type);
 
-create table text_section
+create table section
 (
     id             serial
-        constraint text_section_pk
+        constraint section_pk
             primary key,
-    ts_type        text     not null,
-    ts_value       text     not null,
-    ts_resume_uuid char(36) not null
-        constraint text_section_resume_uuid_fk
+    type        text     not null,
+    content     text     not null,
+    resume_uuid char(36) not null
+        constraint section_resume_uuid_fk
             references resume
             on delete cascade
 );
 
-alter table text_section
+alter table section
     owner to postgres;
 
-create index idx_text_section_resume_type on text_section (ts_resume_uuid, ts_type);
-
-
-create table list_section
-(
-    id             serial
-        constraint list_section_pk
-            primary key,
-    ls_type        text not null,
-    ls_value       text not null,
-    ls_resume_uuid char(36) not null
-        constraint list_section_resume_uuid_fk
-            references resume
-            on delete cascade
-);
-
-alter table list_section
-    owner to postgres;
-
-create index list_section_ls_resume_uuid_ls_type_index
-    on list_section (ls_resume_uuid, ls_type);

@@ -11,30 +11,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.urise.webapp.model.ResumeTestData.*;
 import static org.junit.Assert.*;
 
 public abstract class AbstractStorageTest {
 
-    protected static final File STORAGE_DIR = Config.get().getStorageDir();
-
-    private static final String UUID_0 = "uuid0";
-    private static final String RESUME_0 = "Name0";
-
-    private static final String UUID_1 = "uuid1";
-    private static final String RESUME_1 = "Name1";
-
-    private static final String UUID_2 = "uuid2";
-    private static final String RESUME_2 = "Name2";
-
-    private static final String UUID_3 = "uuid3";
-    private static final String RESUME_3 = "Name3";
-
-    public static final String DUMMY = "dummy";
-
-    private static final Resume r0 = ResumeTestData.filledResume(UUID_0, RESUME_0);
-    private static final Resume r1 = ResumeTestData.filledResume(UUID_1, RESUME_1);
-    private static final Resume r2 = ResumeTestData.filledResume(UUID_2, RESUME_2);
-    private static final Resume r3 = ResumeTestData.filledResume(UUID_3, RESUME_3);
+    public static final File STORAGE_DIR = Config.get().getStorageDir();
 
     protected final Storage storage;
 

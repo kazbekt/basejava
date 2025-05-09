@@ -18,14 +18,12 @@ VALUES ('SKYPE', 'skypeg', '7de882da-02f2-4d16-8daa-60660aaf4071'),
        ('HOMEPAGE', 'skypeg', '7de882da-02f2-4d16-8daa-60660aaf4071'),
        ('HOMEPAGE', 'skypeg', 'a97b3ac3-3817-4c3f-8a5f-178497311f1d');
 
-INSERT INTO text_section (ts_type, ts_value, ts_resume_uuid)
+INSERT INTO section (type, content, resume_uuid)
 VALUES ('PERSONAL', 'Tatatata', '7de882da-02f2-4d16-8daa-60660aaf4071'),
        ('OBJECTIVE', 'Blabla', 'a97b3ac3-3817-4c3f-8a5f-178497311f1d'),
        ('PERSONAL', 'Tatatata', 'a97b3ac3-3817-4c3f-8a5f-178497311f1d'),
-       ('OBJECTIVE', 'Blabla', '7de882da-02f2-4d16-8daa-60660aaf4071');
-
-INSERT INTO list_section (ls_type, ls_value, ls_resume_uuid)
-VALUES ('ACHIEVEMENT', 'AchiAchi\nAchAch\nAcAcAc', '7de882da-02f2-4d16-8daa-60660aaf4071'),
+       ('OBJECTIVE', 'Blabla', '7de882da-02f2-4d16-8daa-60660aaf4071'),
+       ('ACHIEVEMENT', 'AchiAchi\nAchAch\nAcAcAc', '7de882da-02f2-4d16-8daa-60660aaf4071'),
        ('QUALIFICATIONS', 'First\nSectond', 'a97b3ac3-3817-4c3f-8a5f-178497311f1d'),
-('ACHIEVEMENT', 'AchiAchi\nAchAch\nAcAcAc', 'a97b3ac3-3817-4c3f-8a5f-178497311f1d'),
-         ('QUALIFICATIONS', 'First\nSectond', '7de882da-02f2-4d16-8daa-60660aaf4071');
+       ('ACHIEVEMENT', 'AchiAchi\nAchAch\nAcAcAc', 'a97b3ac3-3817-4c3f-8a5f-178497311f1d'),
+       ('QUALIFICATIONS', 'First\nSectond', '7de882da-02f2-4d16-8daa-60660aaf4071');
