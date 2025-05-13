@@ -16,14 +16,16 @@
     <tr>
       <th>Имя</th>
       <th>Email</th>
+      <th>Edit</th>
+      <th>Delete</th>
     </tr>
     <c:forEach items="${resumes}" var="resume">
       <jsp:useBean id="resume" type="com.urise.webapp.model.Resume"/>
     <tr>
-      <td><a href="resume?uuid=<%=resume.getUuid()%>"><%=resume.getFullName()%></a>
-      </td>
-      <td><%=resume.getContact(Resume.ContactType.EMAIL)%>
-      </td>
+      <td><a href="resume?uuid=${resume.uuid}&action=view">${resume.fullName}</a></td>
+      <td><%=resume.getContact(Resume.ContactType.EMAIL)%></td>
+      <td><a href="resume?uuid=${resume.uuid}&action=delete">Delete</a> </td>
+      <td><a href="resume?uuid=${resume.uuid}&action=edit">Edit</a> </td>
     </tr>
     </c:forEach>
   </table>

@@ -43,8 +43,4 @@ public class SqlStorageTest extends AbstractStorageTest {
         super.size();
     }
 
-    @Override
-    public void setUp() {
-        super.setUp();
-    }
 }

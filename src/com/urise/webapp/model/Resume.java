@@ -108,8 +108,18 @@ public class Resume implements Comparable<Resume>, Serializable {
 
     public enum ContactType {
         PHONE("Тел: "),
-        SKYPE("Skype: "),
-        EMAIL("Почта: "),
+        SKYPE("Skype: "){
+            @Override
+            protected String toHtml0(String value) {
+                return "<a href='skype:" + value + "'>" + super.toHtml0(value) + "</a>";
+            }
+        },
+        EMAIL("Почта: "){
+            @Override
+            protected String toHtml0(String value) {
+                return "<a href='mailto:" + value + "'>" + super.toHtml0(value) + "</a>";
+            }
+        },
         LINKEDIN("Профиль LinkedIn: "),
         GITHUB("Профиль GitHub: "),
         STACKOVERFLOW("Профиль Stackoverflow: "),
@@ -124,5 +134,21 @@ public class Resume implements Comparable<Resume>, Serializable {
         public String getContactType() {
             return contactType;
         }
+        protected String toHtml0(String value) {
+            return contactType + ": " + value;
+        }
+
+        public String toHtml(String value) {
+            return (value == null) ? "" : toHtml0(value);
+        }
+
+        public String toLink(String href) {
+            return toLink(href, contactType);
+        }
+
+        public static String toLink(String href, String title) {
+            return "<a href='" + href + "'>" + title + "</a>";
+        }
+
     }
 }
