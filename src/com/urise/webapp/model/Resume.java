@@ -106,6 +106,10 @@ public class Resume implements Comparable<Resume>, Serializable {
         return (compare != 0) ? compare : uuid.compareTo(o.uuid);
     }
 
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
     public enum ContactType {
         PHONE("Тел: "),
         SKYPE("Skype: "){
