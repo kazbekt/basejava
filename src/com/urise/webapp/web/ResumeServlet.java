@@ -50,9 +50,16 @@ public class ResumeServlet extends HttpServlet {
                 storage.delete(uuid);
                 response.sendRedirect("resume");
                 return;
+            case "add":
+                Resume newResume = new Resume("Новое резюме");
+                storage.save(newResume);
+                request.setAttribute("resume", newResume);
+                request.getRequestDispatcher("/WEB-INF/jsp/edit.jsp").forward(request, response);
+                return;
             case "view":
             case "edit":
                 break;
+
             default:
                 throw new IllegalArgumentException("Unknown action " + action);
         }
