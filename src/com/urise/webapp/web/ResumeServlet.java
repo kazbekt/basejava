@@ -1,7 +1,7 @@
 package com.urise.webapp.web;
 
 import com.urise.webapp.Config;
-import com.urise.webapp.model.Resume;
+import com.urise.webapp.model.*;
 import com.urise.webapp.storage.Storage;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ResumeServlet extends HttpServlet {
     private Storage storage;
@@ -31,6 +33,26 @@ public class ResumeServlet extends HttpServlet {
                 r.addContact(ct, value);
             } else {
                 r.getContacts().remove(ct);
+            }
+        }
+        for (SectionType type : SectionType.values()) {
+            String paramValue = request.getParameter(type.name());
+            if (paramValue != null && !paramValue.trim().isEmpty()) {
+                switch (type) {
+                    case PERSONAL:
+                    case OBJECTIVE:
+                        r.addSection(type, new TextSection(paramValue));
+                        break;
+                    case ACHIEVEMENT:
+                    case QUALIFICATIONS:
+                        String text = request.getParameter(type.name());
+                        List<String> items = text.lines()
+                                .map(String::trim)
+                                .filter(s -> !s.isEmpty())
+                                .collect(Collectors.toList());
+                        r.addSection(type, new ListSection(items));
+                        break;
+                }
             }
         }
         storage.update(r);
